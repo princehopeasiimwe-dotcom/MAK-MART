@@ -3,7 +3,7 @@ import useAuth from "../hooks/useAuth";
 import Loader from "../components/common/loader";
 
 function ProtectedRoute({ children, allowedRoles = [] }) {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, isAdmin, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -18,6 +18,22 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
         state={{ from: location.pathname }}
       />
     );
+  }
+
+  const isAdminRoute = allowedRoles.includes("admin");
+
+  // Real admins (verified against the admins table, the same
+  // source RLS uses) can access any protected route, regardless
+  // of their profile.role label.
+  if (isAdminRoute && isAdmin) {
+    return children;
+  }
+
+  // Admin-only routes require real admin status - a profile.role
+  // of "admin" alone isn't enough, since that label can drift out
+  // of sync with actual admins-table membership.
+  if (isAdminRoute && allowedRoles.length === 1) {
+    return <Navigate to="/" replace />;
   }
 
   if (

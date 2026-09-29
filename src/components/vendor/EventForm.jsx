@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../common/button";
 import ErrorMessage from "../common/ErrorMessage";
+import ImageUploadField from "../common/ImageUploadField";
 
 function toDateTimeLocal(isoString) {
   if (!isoString) return "";
@@ -18,6 +19,9 @@ const initialForm = {
   end_time: "",
   location: "",
   image_url: "",
+  contact_whatsapp: "",
+  ticket_price: "",
+  booking_deadline: "",
 };
 
 function EventForm({
@@ -34,6 +38,11 @@ function EventForm({
           end_time: toDateTimeLocal(initialData.end_time),
           location: initialData.location || "",
           image_url: initialData.image_url || "",
+          contact_whatsapp: initialData.contact_whatsapp || "",
+          ticket_price: initialData.ticket_price ?? "",
+          booking_deadline: toDateTimeLocal(
+            initialData.booking_deadline
+          ),
         }
       : initialForm
   );
@@ -76,15 +85,30 @@ function EventForm({
       return;
     }
 
+    if (
+      form.booking_deadline &&
+      new Date(form.booking_deadline) > new Date(form.start_time)
+    ) {
+      setError("Booking deadline should be before the event starts.");
+      return;
+    }
+
     try {
       await onSubmit?.({
         title: form.title,
         description: form.description,
         location: form.location,
         image_url: form.image_url,
+        contact_whatsapp: form.contact_whatsapp,
+        ticket_price: form.ticket_price
+          ? Number(form.ticket_price)
+          : null,
         start_time: new Date(form.start_time).toISOString(),
         end_time: form.end_time
           ? new Date(form.end_time).toISOString()
+          : null,
+        booking_deadline: form.booking_deadline
+          ? new Date(form.booking_deadline).toISOString()
           : null,
       });
 
@@ -153,6 +177,24 @@ function EventForm({
       </div>
 
       <div className="form-group">
+        <label htmlFor="booking_deadline">
+          Booking deadline (optional)
+        </label>
+
+        <input
+          id="booking_deadline"
+          name="booking_deadline"
+          type="datetime-local"
+          value={form.booking_deadline}
+          onChange={handleChange}
+        />
+
+        <p className="field-hint">
+          Last date/time people can book a spot. Leave blank if there's no cutoff.
+        </p>
+      </div>
+
+      <div className="form-group">
         <label htmlFor="location">
           Location
         </label>
@@ -167,19 +209,50 @@ function EventForm({
       </div>
 
       <div className="form-group">
-        <label htmlFor="image_url">
-          Banner image URL
+        <label htmlFor="ticket_price">
+          Ticket price (UGX, optional)
         </label>
 
         <input
-          id="image_url"
-          name="image_url"
-          type="url"
-          value={form.image_url}
+          id="ticket_price"
+          name="ticket_price"
+          type="number"
+          min="0"
+          value={form.ticket_price}
           onChange={handleChange}
-          placeholder="https://..."
+          placeholder="Leave blank if free"
         />
       </div>
+
+      <div className="form-group">
+        <label htmlFor="contact_whatsapp">
+          Contact WhatsApp number
+        </label>
+
+        <input
+          id="contact_whatsapp"
+          name="contact_whatsapp"
+          value={form.contact_whatsapp}
+          onChange={handleChange}
+          placeholder="e.g. 0771234567"
+        />
+
+        <p className="field-hint">
+          Shown as a "Chat on WhatsApp" button on the event page.
+        </p>
+      </div>
+
+      <ImageUploadField
+        bucket="event-images"
+        value={form.image_url}
+        onChange={(url) =>
+          setForm((current) => ({
+            ...current,
+            image_url: url,
+          }))
+        }
+        label="Banner image"
+      />
 
       <div className="form-group">
         <label htmlFor="description">

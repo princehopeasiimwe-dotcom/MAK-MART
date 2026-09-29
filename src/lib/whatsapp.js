@@ -64,3 +64,44 @@ ${customerLocation ? `Location: ${customerLocation}\n` : ""}${
 Please confirm availability. Thank you!
 `.trim();
 }
+
+export function createCartOrderMessage(
+  items = [],
+  order = {}
+) {
+  const {
+    customerName = "",
+    customerPhone = "",
+    customerLocation = "",
+    notes = "",
+  } = order;
+
+  const lines = items
+    .map(
+      (item) =>
+        `- ${item.name} x${item.quantity} = UGX ${(
+          Number(item.price || 0) * item.quantity
+        ).toLocaleString()}`
+    )
+    .join("\n");
+
+  const total = items.reduce(
+    (sum, item) => sum + Number(item.price || 0) * item.quantity,
+    0
+  );
+
+  return `
+Hello, I'd like to place an order on KU Market.
+
+${lines}
+
+Total: UGX ${total.toLocaleString()}
+
+Name: ${customerName}
+Phone: ${customerPhone}
+${customerLocation ? `Location: ${customerLocation}\n` : ""}${
+    notes ? `Note: ${notes}\n` : ""
+  }
+Please confirm availability. Thank you!
+`.trim();
+}

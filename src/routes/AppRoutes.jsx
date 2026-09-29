@@ -9,8 +9,10 @@ import Products from "../pages/marketplace/products";
 import ProductDetails from "../pages/marketplace/productDetails";
 import Vendors from "../pages/marketplace/vendors";
 import VendorProfile from "../pages/marketplace/vendorprofile";
+import Cart from "../pages/marketplace/Cart";
 import Events from "../pages/events/Events";
 import EventDetails from "../pages/events/EventDetails";
+import AdminSettings from "../pages/admin/AdminSettings";
 
 import Services from "../pages/services/services";
 import ServiceDetails from "../pages/services/serviceDetails";
@@ -33,6 +35,7 @@ import AdminEvents from "../pages/admin/AdminEvents";
 import AdminServices from "../pages/admin/AdminServices";
 import AdminOrders from "../pages/admin/AdminOrders";
 import AdminReports from "../pages/admin/AdminReports";
+import AdminCategories from "../pages/admin/AdminCategories";
 
 import ProtectedRoute from "../routes/ProtectedRoutes";
 
@@ -54,7 +57,7 @@ function AppRoutes() {
           path="/marketplace/products/:productId"
           element={<ProductDetails />}
         />
-
+                <Route path="/cart" element={<Cart />} />
         <Route
           path="/marketplace/vendors"
           element={<Vendors />}
@@ -170,7 +173,15 @@ function AppRoutes() {
           path="products"
           element={<AdminProducts />}
         />
-
+        
+        <Route
+          path="settings"
+          element={<AdminSettings />}
+        />
+                <Route
+          path="categories"
+          element={<AdminCategories />}
+        />
         <Route
           path="vendors"
           element={<AdminVendors />}

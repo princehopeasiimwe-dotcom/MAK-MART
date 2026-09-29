@@ -64,7 +64,7 @@ function AdminDashboard() {
         <div>
           <span className="eyebrow">ADMINISTRATION</span>
           <h1>Control Centre</h1>
-          <p>An overview of everything happening on KU Market.</p>
+          <p>An overview of everything happening on MAK MART.</p>
         </div>
       </div>
 

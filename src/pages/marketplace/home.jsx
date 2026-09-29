@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
-  ChevronRight, Shirt, Sparkles, Utensils, Laptop, BookOpen, ShoppingBag,
+  ChevronRight, ShoppingBag,
   ArrowRight, Store, Zap
 } from "lucide-react";
 
@@ -12,8 +12,6 @@ import ProductSection from "../../components/home/ProductSection";
 import ServicePreview from "../../components/home/ServicesPreview";
 import VendorCTA from "../../components/home/VendorCTA";
 import EventSlider from "../../components/events/EventSlider";
-
-const categoryIcons = [Shirt, Sparkles, Utensils, Laptop, BookOpen, ShoppingBag];
 
 function Home() {
   const navigate = useNavigate();
@@ -41,30 +39,25 @@ function Home() {
       <section className="home-hero-jumia">
         <div className="home-hero-jumia__inner">
           <aside className="home-categories">
-            <div className="home-categories__title">Shop by Category</div>
-            {categories.map((category, index) => {
-              const Icon = categoryIcons[index % categoryIcons.length];
-              return (
-                <Link
-                  key={category.id}
-                  to={`/marketplace/products?category=${category.id}`}
-                  className="home-categories__item"
-                >
-                  <Icon size={18} />
-                  <span>{category.name}</span>
-                  <ChevronRight size={15} />
-                </Link>
-              );
-            })}
-
+                    <div className="home-category-grid">
+          {categories.map((category) => (
             <Link
-              to="/marketplace/products"
-              className="home-categories__item"
+              key={category.id}
+              to={`/marketplace/products?category=${category.id}`}
+              className="home-category-card"
             >
-              <ShoppingBag size={18} />
-              <span>More</span>
-              <ChevronRight size={15} />
+              <div className="home-category-card__image">
+                {category.image_url ? (
+                  <img src={category.image_url} alt={category.name} />
+                ) : (
+                  <ShoppingBag size={28} />
+                )}
+              </div>
+              <b>{category.name}</b>
+              <span>Shop now <ArrowRight size={14} /></span>
             </Link>
+          ))}
+        </div>
           </aside>
 
           <div className="home-promo">
@@ -115,20 +108,23 @@ function Home() {
           <Link to="/marketplace/products" className="section-link">View all <ArrowRight size={16} /></Link>
         </div>
         <div className="home-category-grid">
-          {categories.map((category, index) => {
-            const Icon = categoryIcons[index % categoryIcons.length];
-            return (
+                      {categories.map((category) => (
               <Link
                 key={category.id}
                 to={`/marketplace/products?category=${category.id}`}
-                className="home-category-card"
+                className="home-categories__item"
               >
-                <div className="home-category-card__icon"><Icon size={25} /></div>
-                <b>{category.name}</b>
-                <span>Shop now <ArrowRight size={14} /></span>
+                <span className="home-categories__thumb">
+                  {category.image_url ? (
+                    <img src={category.image_url} alt={category.name} />
+                  ) : (
+                    <ShoppingBag size={16} />
+                  )}
+                </span>
+                <span>{category.name}</span>
+                <ChevronRight size={15} />
               </Link>
-            );
-          })}
+            ))}
         </div>
       </section>
 

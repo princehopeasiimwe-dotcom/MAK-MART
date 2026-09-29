@@ -9,6 +9,7 @@ import {
   BarChart3,
   ShieldCheck,
   Settings,
+  Tag,
   LogOut,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
@@ -28,7 +29,7 @@ function AdminLayout() {
       <aside className="dashboard-sidebar">
         <div className="dashboard-brand">
           <ShieldCheck size={25} />
-          <span>KU Market Admin</span>
+          <span>MAK MARTAdmin</span>
         </div>
 
         <div className="dashboard-store">
@@ -71,7 +72,12 @@ function AdminLayout() {
             <BarChart3 size={19} />
             Reports
           </NavLink>
-
+          
+                    <NavLink to="/admin/categories">
+            <Tag size={19} />
+            Categories
+          </NavLink>
+          
           <NavLink to="/admin/settings">
             <Settings size={19} />
             Settings

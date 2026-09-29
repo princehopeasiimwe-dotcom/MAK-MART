@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   Menu, X, Search, ShoppingCart, Store, User, MapPin, ChevronDown
 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
+import ProductService from "../../services/ProductService";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { cartCount } = useCart();
   const closeMenu = () => setMenuOpen(false);
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    ProductService.getCategories()
+      .then((data) => setCategories(data.slice(0, 5)))
+      .catch(() => setCategories([]));
+  }, []);
 
   return (
     <header className="navbar jumia-navbar">
@@ -88,11 +97,14 @@ function Navbar() {
           <Link to="/marketplace/products" className="jumia-categorybar__all">
             <Menu size={18} /> Categories
           </Link>
-          <Link to="/marketplace/products?category=fashion">Fashion</Link>
-          <Link to="/marketplace/products?category=beauty">Beauty</Link>
-          <Link to="/marketplace/products?category=food">Food</Link>
-          <Link to="/marketplace/products?category=technology">Phones & Tech</Link>
-          <Link to="/marketplace/products?category=books">Books</Link>
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              to={`/marketplace/products?category=${category.id}`}
+            >
+              {category.name}
+            </Link>
+          ))}
           <Link to="/services">Services</Link>
           <span className="jumia-location"><MapPin size={15} /> Makerere University</span>
         </div>

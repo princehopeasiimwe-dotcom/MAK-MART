@@ -18,7 +18,7 @@ import OrderModal from "../../components/marketplace/OrderModal";
 import { formatCurrency } from "../../utils/currency";
 
 function ProductDetails() {
-  const { id } = useParams();
+  const { productId } = useParams();
   const navigate = useNavigate();
 
   const { getProduct, loading, error } =
@@ -33,8 +33,8 @@ function ProductDetails() {
     useState(false);
 
   useEffect(() => {
-    getProduct(id).then(setProduct);
-  }, [id]);
+    getProduct(productId).then(setProduct);
+  }, [productId]);
 
   if (loading) {
     return <Loader message="Loading product..." />;

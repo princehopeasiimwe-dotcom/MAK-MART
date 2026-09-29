@@ -65,7 +65,55 @@ const OrderService = {
 
     return orderRow;
   },
+  // Same guest-friendly behavior as createOrder, but for a
+  // whole cart's worth of items from a single vendor at once.
+  async createMultiItemOrder({
+    vendorId,
+    items,
+    totalAmount,
+    customerLocation,
+    notes,
+  }) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
+    if (!session?.user) {
+      return null;
+    }
+
+    const { data: orderRow, error } = await supabase
+      .from("orders")
+      .insert([
+        {
+          buyer_id: session.user.id,
+          vendor_id: vendorId,
+          total_amount: totalAmount,
+          delivery_location: customerLocation || null,
+          delivery_notes: notes || null,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(
+        items.map((item) => ({
+          order_id: orderRow.id,
+          product_id: item.id,
+          product_name: item.name,
+          quantity: item.quantity,
+          unit_price: item.price,
+        }))
+      );
+
+    if (itemsError) throw itemsError;
+
+    return orderRow;
+  },
   async updateOrderStatus(id, status) {
     const { data, error } = await supabase
       .from("orders")
