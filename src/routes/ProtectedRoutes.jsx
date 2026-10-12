@@ -7,13 +7,13 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
   const location = useLocation();
 
   if (loading) {
-    return <Loader text="Loading KU Market..." />;
+    return <Loader message="Loading MAK MART..." />;
   }
 
   if (!user) {
     return (
       <Navigate
-        to="/vendor/login"
+        to="/login"
         replace
         state={{ from: location.pathname }}
       />
@@ -36,10 +36,11 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
     return <Navigate to="/" replace />;
   }
 
+  // If the profile failed to load, or the role isn't allowed here,
+  // keep the user out (fail closed).
   if (
     allowedRoles.length > 0 &&
-    profile?.role &&
-    !allowedRoles.includes(profile.role)
+    !allowedRoles.includes(profile?.role)
   ) {
     return <Navigate to="/" replace />;
   }
