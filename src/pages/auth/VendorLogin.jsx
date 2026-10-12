@@ -1,24 +1,20 @@
 import { useState } from "react";
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import { getHomePathForUser } from "../../lib/authRedirect";
 
+// One login screen for everybody (customers, vendors, service
+// providers, admins). Served at /login, /vendor/login and
+// /provider/login. After signing in, each user is sent to their
+// own dashboard (or back to the page they came from).
 function VendorLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [email, setEmail] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -27,10 +23,7 @@ function VendorLogin() {
     setError("");
 
     const { data, error: loginError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      await supabase.auth.signInWithPassword({ email, password });
 
     if (loginError) {
       setError(loginError.message);
@@ -38,64 +31,51 @@ function VendorLogin() {
       return;
     }
 
-    const { data: admin } =
-      await supabase
-        .from("admins")
-        .select("id")
-        .eq("id", data.user.id)
-        .maybeSingle();
-
-    if (admin) {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/vendor/dashboard");
-    }
+    const homePath = await getHomePathForUser(data.user.id);
+    const from = location.state?.from;
 
     setLoading(false);
+    navigate(from && from !== "/login" ? from : homePath, {
+      replace: true,
+    });
   };
 
   return (
     <section className="auth-page">
       <div className="auth-card">
-        <span className="eyebrow">
-          WELCOME BACK
-        </span>
+        <span className="eyebrow">WELCOME BACK</span>
 
-        <h1>Vendor Login</h1>
+        <h1>Login</h1>
 
-        <p>
-          Manage your KU Market store.
-        </p>
+        <p>Sign in to your MAK MART account.</p>
 
-        {error && (
-          <div className="form-error">
-            {error}
-          </div>
+        {location.state?.message && (
+          <div className="form-success">{location.state.message}</div>
         )}
+
+        {error && <div className="form-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email address</label>
+            <label htmlFor="login-email">Email address</label>
 
             <input
+              id="login-email"
               type="email"
               value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
+              onChange={(event) => setEmail(event.target.value)}
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="login-password">Password</label>
 
             <input
+              id="login-password"
               type="password"
               value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
           </div>
@@ -105,22 +85,21 @@ function VendorLogin() {
             className="primary-button full-width"
             disabled={loading}
           >
-            {loading
-              ? "Signing in..."
-              : "Login"}
+            {loading ? "Signing in..." : "Login"}
           </button>
         </form>
 
         <div className="auth-links">
-          <Link to="/reset-password">
-            Forgot password?
-          </Link>
+          <Link to="/reset-password">Forgot password?</Link>
 
           <p>
-            Don't have a vendor account?{" "}
-            <Link to="/vendor/signup">
-              Sign up
-            </Link>
+            New here? <Link to="/signup">Create an account</Link>
+          </p>
+
+          <p>
+            Want to sell? <Link to="/vendor/signup">Become a vendor</Link>
+            {" · "}
+            <Link to="/provider/signup">Offer a service</Link>
           </p>
         </div>
       </div>
