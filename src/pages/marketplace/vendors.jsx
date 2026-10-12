@@ -45,7 +45,7 @@ function Vendors() {
           STUDENT ENTREPRENEURS
         </span>
 
-        <h1>KU Market Vendors</h1>
+        <h1>MAK MART Vendors</h1>
 
         <p>
           Explore businesses run by the Makerere

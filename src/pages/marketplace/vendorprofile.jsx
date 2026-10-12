@@ -76,7 +76,7 @@ function VendorProfile() {
 
         <div>
           <span className="eyebrow">
-            KU MARKET VENDOR
+            MAK MART VENDOR
           </span>
 
           <h1>{vendor.business_name}</h1>
