@@ -56,24 +56,16 @@ function OrderModal({ product, isOpen, onClose }) {
     setSubmitting(true);
 
     try {
-      // Saves a real order record if the shopper is signed in
-      // and the write succeeds. Either way, the WhatsApp
-      // message still goes out below - ordering never blocks
-      // on having an account or on a database hiccup.
-      try {
-        await OrderService.createOrder({
-          product_id: product.id,
-          product_name: product.name,
-          vendor_id: vendor.id,
-          customer_location: customerLocation.trim(),
-          quantity,
-          unit_price: price,
-          total_amount: total,
-          notes: notes.trim(),
-        });
-      } catch (orderErr) {
-        console.error("Order record not saved:", orderErr);
-      }
+      // Signed-in shoppers get a real order record; the server
+      // prices it and checks stock (errors are shown to the user).
+      // Guests skip this and order via WhatsApp only.
+      await OrderService.createOrder({
+        product_id: product.id,
+        vendor_id: vendor.id,
+        customer_location: customerLocation.trim(),
+        quantity,
+        notes: notes.trim(),
+      });
 
       openWhatsApp(
         vendorPhone,
