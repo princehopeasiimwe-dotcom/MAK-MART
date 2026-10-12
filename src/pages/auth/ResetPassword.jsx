@@ -19,7 +19,7 @@ function ResetPassword() {
     setMessage("");
 
     const redirectTo =
-      `${window.location.origin}/vendor/login`;
+      `${window.location.origin}/update-password`;
 
     const { error: resetError } =
       await supabase.auth.resetPasswordForEmail(
@@ -85,7 +85,7 @@ function ResetPassword() {
           </button>
         </form>
 
-        <Link to="/vendor/login">
+        <Link to="/login">
           Back to login
         </Link>
       </div>

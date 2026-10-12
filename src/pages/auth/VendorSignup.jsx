@@ -1,12 +1,16 @@
 import { useState } from "react";
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 
-function VendorSignUp() {
+// Signup for sellers. accountType is "vendor" (sells products) or
+// "service_provider" (offers services). The vendor / provider
+// record is created by the database from the signup metadata
+// (see migration 012), so this works whether or not email
+// confirmation is switched on in Supabase. New accounts always
+// start unapproved until an admin activates them.
+function VendorSignUp({ accountType = "vendor" }) {
   const navigate = useNavigate();
+  const isProvider = accountType === "service_provider";
 
   const [form, setForm] = useState({
     business_name: "",
@@ -16,20 +20,12 @@ function VendorSignUp() {
     password: "",
   });
 
-  const [loading, setLoading] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
-    const { name, value } =
-      event.target;
-
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -38,67 +34,40 @@ function VendorSignUp() {
     setLoading(true);
     setError("");
 
-    const { data, error: authError } =
-      await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: {
-          data: {
-            full_name: form.business_name,
-          },
-        },
-      });
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (!data.session) {
-      setError(
-        "Check your email to confirm your account, then log in to finish setting up your store."
-      );
-      setLoading(false);
-      return;
-    }
-
-    // The handle_new_user trigger already created a `profiles`
-    // row with role='customer' - promote it to 'vendor'.
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({
-        role: "vendor",
-        phone: form.phone,
-      })
-      .eq("id", data.user.id);
-
-    if (profileError) {
-      setError(profileError.message);
-      setLoading(false);
-      return;
-    }
-
-    const { error: vendorError } =
-      await supabase
-        .from("vendors")
-        .insert({
-          owner_id: data.user.id,
+    const { data, error: authError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+        data: {
+          account_type: accountType,
+          full_name: form.business_name,
           business_name: form.business_name,
           phone: form.phone,
           location: form.location,
-        });
+        },
+      },
+    });
 
-    if (vendorError) {
-      setError(vendorError.message);
-      setLoading(false);
+    setLoading(false);
+
+    if (authError) {
+      setError(authError.message);
       return;
     }
 
-    navigate("/vendor/login", {
+    // With email confirmation on there is no session yet.
+    const needsConfirmation = !data.session;
+
+    if (!needsConfirmation) {
+      await supabase.auth.signOut();
+    }
+
+    navigate("/login", {
       state: {
-        message:
-          "Account created successfully. Your vendor account is awaiting approval.",
+        message: needsConfirmation
+          ? "Account created. Please confirm your email, then log in. Your account will go live once an admin approves it."
+          : "Account created. Your account is awaiting admin approval.",
       },
     });
   };
@@ -106,29 +75,24 @@ function VendorSignUp() {
   return (
     <section className="auth-page">
       <div className="auth-card auth-card--wide">
-        <span className="eyebrow">
-          JOIN KU MARKET
-        </span>
+        <span className="eyebrow">JOIN MAK MART</span>
 
-        <h1>Create your store</h1>
+        <h1>{isProvider ? "Offer your service" : "Create your store"}</h1>
 
         <p>
-          Start selling to the Makerere University
-          community.
+          {isProvider
+            ? "Reach students and staff across the Makerere University community."
+            : "Start selling to the Makerere University community."}
         </p>
 
-        {error && (
-          <div className="form-error">
-            {error}
-          </div>
-        )}
+        {error && <div className="form-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             <div className="form-group">
-              <label>Business name</label>
-
+              <label htmlFor="su-business">Business name</label>
               <input
+                id="su-business"
                 name="business_name"
                 value={form.business_name}
                 onChange={handleChange}
@@ -137,9 +101,9 @@ function VendorSignUp() {
             </div>
 
             <div className="form-group">
-              <label>WhatsApp / phone number</label>
-
+              <label htmlFor="su-phone">WhatsApp / phone number</label>
               <input
+                id="su-phone"
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
@@ -149,9 +113,9 @@ function VendorSignUp() {
             </div>
 
             <div className="form-group">
-              <label>Campus / location</label>
-
+              <label htmlFor="su-location">Campus / location</label>
               <input
+                id="su-location"
                 name="location"
                 value={form.location}
                 onChange={handleChange}
@@ -159,9 +123,9 @@ function VendorSignUp() {
             </div>
 
             <div className="form-group">
-              <label>Email</label>
-
+              <label htmlFor="su-email">Email</label>
               <input
+                id="su-email"
                 name="email"
                 type="email"
                 value={form.email}
@@ -171,14 +135,14 @@ function VendorSignUp() {
             </div>
 
             <div className="form-group">
-              <label>Password</label>
-
+              <label htmlFor="su-password">Password</label>
               <input
+                id="su-password"
                 name="password"
                 type="password"
                 value={form.password}
                 onChange={handleChange}
-                minLength="6"
+                minLength="8"
                 required
               />
             </div>
@@ -190,16 +154,15 @@ function VendorSignUp() {
             disabled={loading}
           >
             {loading
-              ? "Creating store..."
-              : "Create Vendor Account"}
+              ? "Creating account..."
+              : isProvider
+                ? "Create Provider Account"
+                : "Create Vendor Account"}
           </button>
         </form>
 
         <p className="auth-footer">
-          Already registered?{" "}
-          <Link to="/vendor/login">
-            Login here
-          </Link>
+          Already registered? <Link to="/login">Login here</Link>
         </p>
       </div>
     </section>
