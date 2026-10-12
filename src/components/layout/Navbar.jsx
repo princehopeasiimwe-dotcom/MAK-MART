@@ -1,3 +1,4 @@
+import logo from "../../assets/logos/mak mart logo.png";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
@@ -35,7 +36,7 @@ function Navbar() {
       <div className="navbar__container navbar__main">
         <Link to="/" className="navbar__brand" onClick={closeMenu}>
           <div className="navbar__logo">
-            <img src="src/assets/logos/mak mart logo.png" alt="MAK MART Logo" />
+            <img src={logo} alt="MAK MART Logo" />
           </div>
           <div className="navbar__brand-text">
             <strong>MAK MART</strong>
@@ -67,7 +68,7 @@ function Navbar() {
         </nav>
 
         <div className="navbar__actions">
-          <Link to="/vendor/login" className="navbar__account">
+          <Link to="/login" className="navbar__account">
             <User size={19} />
             <span>Account</span>
             <ChevronDown size={14} />
@@ -121,7 +122,7 @@ function Navbar() {
             <NavLink to="/cart" onClick={closeMenu} className="navbar__mobile-link">Cart ({cartCount})</NavLink>
           </nav>
           <div className="navbar__mobile-actions">
-            <Link to="/vendor/login" onClick={closeMenu} className="navbar__mobile-login"><User size={18} /> Vendor Login</Link>
+            <Link to="/login" onClick={closeMenu} className="navbar__mobile-login"><User size={18} /> Login / Sign up</Link>
             <Link to="/vendor/signup" onClick={closeMenu} className="navbar__mobile-vendor"><Store size={18} /> Become a Vendor</Link>
           </div>
         </div>
