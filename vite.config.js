@@ -3,16 +3,28 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        // Third-party code changes rarely, so keep it in its own
+        // cacheable files instead of one big bundle.
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          supabase: ["@supabase/supabase-js"],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       manifest: {
-        name: "KU Market | Makerere Student Marketplace",
-        short_name: "KU Market",
+        name: "MAK MART | Makerere Student Marketplace",
+        short_name: "MAK MART",
         description:
-          "KU Market - Makerere University's student marketplace for products, events and services.",
+          "MAK MART - Makerere University's student marketplace for products, events and services.",
         theme_color: "#ff6b35",
         background_color: "#fffaf8",
         display: "standalone",
