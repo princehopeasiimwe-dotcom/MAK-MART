@@ -20,57 +20,27 @@ const OrderService = {
     return data || [];
   },
 
-  // Returns the created order, or null if the buyer isn't
-  // signed in (guest checkout still works via WhatsApp, it
-  // just won't have a database record under this schema,
-  // since orders.buyer_id is required and RLS-enforced).
+  // Orders are created by the database function place_order(),
+  // which reads prices from the products table, checks stock and
+  // computes the total itself. The browser only sends product ids
+  // and quantities - it can no longer choose its own prices.
+  //
+  // Returns the new order id, or null if the buyer isn't signed in
+  // (guest checkout still works via WhatsApp, it just won't have a
+  // database record).
   async createOrder(order) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session?.user) {
-      return null;
-    }
-
-    const { data: orderRow, error } = await supabase
-      .from("orders")
-      .insert([
-        {
-          buyer_id: session.user.id,
-          vendor_id: order.vendor_id,
-          total_amount: order.total_amount,
-          delivery_location: order.customer_location || null,
-          delivery_notes: order.notes || null,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    const { error: itemError } = await supabase
-      .from("order_items")
-      .insert([
-        {
-          order_id: orderRow.id,
-          product_id: order.product_id,
-          product_name: order.product_name,
-          quantity: order.quantity || 1,
-          unit_price: order.unit_price,
-        },
-      ]);
-
-    if (itemError) throw itemError;
-
-    return orderRow;
+    return OrderService.createMultiItemOrder({
+      vendorId: order.vendor_id,
+      items: [{ id: order.product_id, quantity: order.quantity || 1 }],
+      customerLocation: order.customer_location,
+      notes: order.notes,
+    });
   },
-  // Same guest-friendly behavior as createOrder, but for a
-  // whole cart's worth of items from a single vendor at once.
+
+  // Same as createOrder, but for a whole cart from one vendor.
   async createMultiItemOrder({
     vendorId,
     items,
-    totalAmount,
     customerLocation,
     notes,
   }) {
@@ -82,37 +52,19 @@ const OrderService = {
       return null;
     }
 
-    const { data: orderRow, error } = await supabase
-      .from("orders")
-      .insert([
-        {
-          buyer_id: session.user.id,
-          vendor_id: vendorId,
-          total_amount: totalAmount,
-          delivery_location: customerLocation || null,
-          delivery_notes: notes || null,
-        },
-      ])
-      .select()
-      .single();
+    const { data, error } = await supabase.rpc("place_order", {
+      p_vendor_id: vendorId,
+      p_items: items.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+      })),
+      p_delivery_location: customerLocation || null,
+      p_notes: notes || null,
+    });
 
     if (error) throw error;
 
-    const { error: itemsError } = await supabase
-      .from("order_items")
-      .insert(
-        items.map((item) => ({
-          order_id: orderRow.id,
-          product_id: item.id,
-          product_name: item.name,
-          quantity: item.quantity,
-          unit_price: item.price,
-        }))
-      );
-
-    if (itemsError) throw itemsError;
-
-    return orderRow;
+    return data;
   },
   async updateOrderStatus(id, status) {
     const { data, error } = await supabase
