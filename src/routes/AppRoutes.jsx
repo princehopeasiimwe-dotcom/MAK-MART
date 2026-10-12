@@ -1,46 +1,59 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
+import Loader from "../components/common/loader";
+import ProtectedRoute from "./ProtectedRoutes";
+
 import PublicLayout from "../Layouts/publicLayout";
-import VendorLayout from "../Layouts/vendorLayout";
-import AdminLayout from "../Layouts/AdminLayout";
 
-import Home from "../pages/marketplace/home";
-import Products from "../pages/marketplace/products";
-import ProductDetails from "../pages/marketplace/productDetails";
-import Vendors from "../pages/marketplace/vendors";
-import VendorProfile from "../pages/marketplace/vendorprofile";
-import Cart from "../pages/marketplace/Cart";
-import Events from "../pages/events/Events";
-import EventDetails from "../pages/events/EventDetails";
-import AdminSettings from "../pages/admin/AdminSettings";
+// Everything below is code-split: each page is only downloaded
+// when somebody visits it, which keeps the first load small.
+const VendorLayout = lazy(() => import("../Layouts/vendorLayout"));
+const AdminLayout = lazy(() => import("../Layouts/AdminLayout"));
+const ProviderLayout = lazy(() => import("../Layouts/providerLayout"));
 
-import Services from "../pages/services/services";
-import ServiceDetails from "../pages/services/serviceDetails";
-import ProviderProfile from "../pages/services/ProviderProfile";
+const Home = lazy(() => import("../pages/marketplace/home"));
+const Products = lazy(() => import("../pages/marketplace/products"));
+const ProductDetails = lazy(() => import("../pages/marketplace/productDetails"));
+const Vendors = lazy(() => import("../pages/marketplace/vendors"));
+const VendorProfile = lazy(() => import("../pages/marketplace/vendorprofile"));
+const Cart = lazy(() => import("../pages/marketplace/Cart"));
+const Events = lazy(() => import("../pages/events/Events"));
+const EventDetails = lazy(() => import("../pages/events/EventDetails"));
 
-import VendorLogin from "../pages/auth/VendorLogin";
-import VendorSignup from "../pages/auth/VendorSignup";
-import ResetPassword from "../pages/auth/ResetPassword";
+const Services = lazy(() => import("../pages/services/services"));
+const ServiceDetails = lazy(() => import("../pages/services/serviceDetails"));
+const ProviderProfile = lazy(() => import("../pages/services/ProviderProfile"));
 
-import VendorDashboard from "../pages/vendor/VendorDashboard";
-import VendorProducts from "../pages/vendor/VendorProducts";
-import VendorOrders from "../pages/vendor/VendorOrders";
-import VendorEvents from "../pages/vendor/VendorEvents";
-import VendorProfilePage from "../pages/vendor/VendorProfile";
+const Login = lazy(() => import("../pages/auth/VendorLogin"));
+const CustomerSignup = lazy(() => import("../pages/auth/CustomerSignup"));
+const VendorSignup = lazy(() => import("../pages/auth/VendorSignup"));
+const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
+const UpdatePassword = lazy(() => import("../pages/auth/UpdatePassword"));
 
-import AdminDashboard from "../pages/admin/AdminDashboard";
-import AdminProducts from "../pages/admin/AdminProducts";
-import AdminVendors from "../pages/admin/AdminVendors";
-import AdminEvents from "../pages/admin/AdminEvents";
-import AdminServices from "../pages/admin/AdminServices";
-import AdminOrders from "../pages/admin/AdminOrders";
-import AdminReports from "../pages/admin/AdminReports";
-import AdminCategories from "../pages/admin/AdminCategories";
+const VendorDashboard = lazy(() => import("../pages/vendor/VendorDashboard"));
+const VendorProducts = lazy(() => import("../pages/vendor/VendorProducts"));
+const VendorOrders = lazy(() => import("../pages/vendor/VendorOrders"));
+const VendorEvents = lazy(() => import("../pages/vendor/VendorEvents"));
+const VendorProfilePage = lazy(() => import("../pages/vendor/VendorProfile"));
 
-import ProtectedRoute from "../routes/ProtectedRoutes";
+const ProviderDashboard = lazy(() => import("../pages/provider/ProviderDashboard"));
+const ProviderServices = lazy(() => import("../pages/provider/ProviderServices"));
+const ProviderAccount = lazy(() => import("../pages/provider/ProviderAccount"));
+
+const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("../pages/admin/AdminProducts"));
+const AdminVendors = lazy(() => import("../pages/admin/AdminVendors"));
+const AdminEvents = lazy(() => import("../pages/admin/AdminEvents"));
+const AdminServices = lazy(() => import("../pages/admin/AdminServices"));
+const AdminOrders = lazy(() => import("../pages/admin/AdminOrders"));
+const AdminReports = lazy(() => import("../pages/admin/AdminReports"));
+const AdminCategories = lazy(() => import("../pages/admin/AdminCategories"));
+const AdminSettings = lazy(() => import("../pages/admin/AdminSettings"));
 
 function AppRoutes() {
   return (
+    <Suspense fallback={<Loader fullScreen message="Loading..." />}>
     <Routes>
       {/* =========================
           PUBLIC MARKETPLACE
@@ -95,14 +108,20 @@ function AppRoutes() {
           AUTH
       ========================== */}
 
-      <Route path="/vendor/login" element={<VendorLogin />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/vendor/login" element={<Login />} />
+      <Route path="/provider/login" element={<Login />} />
 
+      <Route path="/signup" element={<CustomerSignup />} />
       <Route path="/vendor/signup" element={<VendorSignup />} />
-
       <Route
-        path="/vendor/reset-password"
-        element={<ResetPassword />}
+        path="/provider/signup"
+        element={<VendorSignup accountType="service_provider" />}
       />
+
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/vendor/reset-password" element={<Navigate to="/reset-password" replace />} />
+      <Route path="/update-password" element={<UpdatePassword />} />
 
       {/* =========================
           VENDOR DASHBOARD
@@ -145,6 +164,24 @@ function AppRoutes() {
           path="profile"
           element={<VendorProfilePage />}
         />
+      </Route>
+
+            {/* =========================
+          SERVICE PROVIDER DASHBOARD
+      ========================== */}
+
+      <Route
+        path="/provider"
+        element={
+          <ProtectedRoute allowedRoles={["service_provider", "admin"]}>
+            <ProviderLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/provider/dashboard" replace />} />
+        <Route path="dashboard" element={<ProviderDashboard />} />
+        <Route path="services" element={<ProviderServices />} />
+        <Route path="profile" element={<ProviderAccount />} />
       </Route>
 
       {/* =========================
@@ -217,6 +254,7 @@ function AppRoutes() {
         element={<Navigate to="/" replace />}
       />
     </Routes>
+    </Suspense>
   );
 }
 
