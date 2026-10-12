@@ -61,17 +61,12 @@ function CartCheckoutModal({
     setSubmitting(true);
 
     try {
-      try {
-        await OrderService.createMultiItemOrder({
+      await OrderService.createMultiItemOrder({
           vendorId: vendor.id,
           items,
-          totalAmount: total,
           customerLocation: customerLocation.trim(),
           notes: notes.trim(),
         });
-      } catch (orderErr) {
-        console.error("Order record not saved:", orderErr);
-      }
 
       openWhatsApp(
         vendorPhone,
