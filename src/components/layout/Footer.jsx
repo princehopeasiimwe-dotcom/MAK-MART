@@ -1,3 +1,4 @@
+import logo from "../../assets/logos/mak mart logo.png";
 import { Link } from "react-router-dom";
 import {
   Instagram,
@@ -17,7 +18,7 @@ function Footer() {
         <div className="footer__brand">
           <Link to="/" className="footer__logo">
             <div className="footer__logo-mark">
-              <img src="src/assets/logos/mak mart logo.png" alt="MAK MART Logo" />
+              <img src={logo} alt="MAK MART Logo" />
             </div>
 
             <div>
@@ -85,7 +86,7 @@ function Footer() {
             Become a vendor
           </Link>
 
-          <Link to="/vendor/login">
+          <Link to="/login">
             Vendor login
           </Link>
 
