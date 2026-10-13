@@ -8,6 +8,7 @@ import {
 
 import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
+import WhatsAppGroupCard from "../../components/common/WhatsAppGroupCard";
 
 function VendorDashboard() {
   const { user, vendor } = useAuth();
@@ -93,6 +94,8 @@ function VendorDashboard() {
           products won't appear publicly until then.
         </div>
       )}
+
+      <WhatsAppGroupCard approved={Boolean(vendor?.is_active)} />
 
       <div className="stats-grid">
         <div className="stat-card">
