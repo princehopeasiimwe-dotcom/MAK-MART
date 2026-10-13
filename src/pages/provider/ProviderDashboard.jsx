@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Wrench } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
+import WhatsAppGroupCard from "../../components/common/WhatsAppGroupCard";
 
 function ProviderDashboard() {
   const { serviceProvider } = useAuth();
@@ -32,6 +33,8 @@ function ProviderDashboard() {
           visible to customers once it is approved.
         </div>
       )}
+
+      <WhatsAppGroupCard approved={Boolean(serviceProvider?.is_active)} />
 
       <div className="stats-grid">
         <div className="stat-card">
