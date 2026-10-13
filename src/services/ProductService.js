@@ -6,7 +6,8 @@ const PRODUCT_SELECT = `
     id,
     business_name,
     phone,
-    location
+    location,
+    is_verified
   ),
   categories (
     id,

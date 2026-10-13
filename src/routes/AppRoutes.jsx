@@ -18,6 +18,7 @@ const ProductDetails = lazy(() => import("../pages/marketplace/productDetails"))
 const Vendors = lazy(() => import("../pages/marketplace/vendors"));
 const VendorProfile = lazy(() => import("../pages/marketplace/vendorprofile"));
 const Cart = lazy(() => import("../pages/marketplace/Cart"));
+const Account = lazy(() => import("../pages/account/Account"));
 const Events = lazy(() => import("../pages/events/Events"));
 const EventDetails = lazy(() => import("../pages/events/EventDetails"));
 
@@ -26,8 +27,8 @@ const ServiceDetails = lazy(() => import("../pages/services/serviceDetails"));
 const ProviderProfile = lazy(() => import("../pages/services/ProviderProfile"));
 
 const Login = lazy(() => import("../pages/auth/VendorLogin"));
-const CustomerSignup = lazy(() => import("../pages/auth/CustomerSignup"));
 const VendorSignup = lazy(() => import("../pages/auth/VendorSignup"));
+const CustomerSignup = lazy(() => import("../pages/auth/CustomerSignup"));
 const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
 const UpdatePassword = lazy(() => import("../pages/auth/UpdatePassword"));
 
@@ -71,6 +72,7 @@ function AppRoutes() {
           element={<ProductDetails />}
         />
                 <Route path="/cart" element={<Cart />} />
+        <Route path="/account" element={<Account />} />
         <Route
           path="/marketplace/vendors"
           element={<Vendors />}
