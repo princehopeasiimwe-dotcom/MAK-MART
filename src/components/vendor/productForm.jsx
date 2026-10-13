@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Button from "../common/button";
 import ErrorMessage from "../common/ErrorMessage";
+import ImageUploadField from "../common/ImageUploadField";
 import ProductService from "../../services/ProductService";
 
 const initialForm = {
@@ -194,20 +195,14 @@ function ProductForm({
         </select>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="image_url">
-          Product image URL
-        </label>
-
-        <input
-          id="image_url"
-          name="image_url"
-          type="url"
-          value={form.image_url}
-          onChange={handleChange}
-          placeholder="https://..."
-        />
-      </div>
+      <ImageUploadField
+        bucket="product-images"
+        label="Product photo"
+        value={form.image_url}
+        onChange={(url) =>
+          setForm((current) => ({ ...current, image_url: url }))
+        }
+      />
 
       <div className="form-group">
         <label htmlFor="description">

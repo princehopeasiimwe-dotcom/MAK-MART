@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ImageUploadField from "../common/ImageUploadField";
 import ErrorMessage from "../common/ErrorMessage";
 
 const emptyForm = {
@@ -8,6 +9,7 @@ const emptyForm = {
   location: "",
   category_id: "",
   is_available: true,
+  image_url: "",
 };
 
 function ServiceForm({
@@ -24,6 +26,7 @@ function ServiceForm({
           location: initialData.location || "",
           category_id: initialData.category_id || "",
           is_available: initialData.is_available ?? true,
+          image_url: initialData.image_url || "",
         }
       : emptyForm
   );
@@ -62,6 +65,7 @@ function ServiceForm({
         location: form.location.trim() || null,
         category_id: form.category_id || null,
         is_available: form.is_available,
+        image_url: form.image_url || null,
       });
     } catch (err) {
       setError(err.message || "Could not save the service.");
@@ -73,6 +77,13 @@ function ServiceForm({
   return (
     <form onSubmit={handleSubmit}>
       <ErrorMessage message={error} onClose={() => setError("")} />
+
+      <ImageUploadField
+        bucket="vendor-images"
+        label="Service photo (optional)"
+        value={form.image_url}
+        onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
+      />
 
       <div className="form-group">
         <label htmlFor="svc-name">Service name</label>
