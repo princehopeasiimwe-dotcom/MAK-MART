@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Wrench,
@@ -19,7 +19,7 @@ function ProviderLayout() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/provider/login");
+    navigate("/login");
   };
 
   return (
@@ -51,6 +51,11 @@ function ProviderLayout() {
             Profile
           </NavLink>
         </nav>
+
+        <Link to="/" className="dashboard-sidebar__signout dashboard-sidebar__home">
+          <Store size={18} />
+          View marketplace
+        </Link>
 
         <button
           type="button"
