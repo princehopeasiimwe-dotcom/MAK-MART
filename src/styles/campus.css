@@ -1188,3 +1188,57 @@
   margin-top: 0;
   border-top: none;
 }
+
+/* ===== Image upload field ===== */
+.image-upload-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 22px 16px;
+  border: 2px dashed #d9cfc6;
+  border-radius: 12px;
+  background: #faf8f6;
+  color: #15352a;
+  font-weight: 600;
+  cursor: pointer;
+}
+.image-upload-dropzone:hover { border-color: #ff6b35; color: #ff6b35; }
+.image-upload-preview {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+.image-upload-preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 12px;
+  border: 1px solid #e7dfd7;
+  object-fit: cover;
+}
+.image-upload-preview__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  cursor: pointer;
+}
+.spin { animation: mm-spin 1s linear infinite; }
+@keyframes mm-spin { to { transform: rotate(360deg); } }
+.provider-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 1px solid #e7dfd7;
+}

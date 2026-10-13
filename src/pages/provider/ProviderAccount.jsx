@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import ServiceService from "../../services/services";
 
 function ProviderAccount() {
@@ -10,6 +11,7 @@ function ProviderAccount() {
     phone: serviceProvider?.phone || "",
     location: serviceProvider?.location || "",
     description: serviceProvider?.description || "",
+    profile_image_url: serviceProvider?.profile_image_url || "",
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -51,6 +53,12 @@ function ProviderAccount() {
       {error && <div className="form-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
+        <ImageUploadField
+          bucket="vendor-images"
+          label="Profile icon / photo"
+          value={form.profile_image_url}
+          onChange={(url) => setForm((f) => ({ ...f, profile_image_url: url }))}
+        />
         <div className="form-group">
           <label htmlFor="pa-name">Business name</label>
           <input id="pa-name" name="business_name" value={form.business_name} onChange={handleChange} required />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import { supabase } from "../../lib/supabase";
 
 function VendorProfile() {
@@ -13,6 +14,8 @@ function VendorProfile() {
     phone: vendor?.phone || "",
     location: vendor?.location || "Main Campus",
     description: vendor?.description || "",
+    logo_url: vendor?.logo_url || "",
+    cover_image_url: vendor?.cover_image_url || "",
   });
 
   const [message, setMessage] =
@@ -86,6 +89,20 @@ function VendorProfile() {
         className="vendor-form"
         onSubmit={handleSubmit}
       >
+        <ImageUploadField
+          bucket="vendor-images"
+          label="Store icon / logo"
+          value={form.logo_url}
+          onChange={(url) => setForm((f) => ({ ...f, logo_url: url }))}
+        />
+
+        <ImageUploadField
+          bucket="vendor-images"
+          label="Store cover photo (optional)"
+          value={form.cover_image_url}
+          onChange={(url) => setForm((f) => ({ ...f, cover_image_url: url }))}
+        />
+
         <div className="form-group">
           <label>Business name</label>
 

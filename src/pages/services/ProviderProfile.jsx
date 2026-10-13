@@ -71,7 +71,7 @@ function ProviderProfile() {
   const whatsappLink = provider.phone
     ? createWhatsAppLink(
         provider.phone,
-        `Hi ${businessName}, I found you on KU Market.`
+        `Hi ${businessName}, I found you on MAK MART.`
       )
     : null;
 
@@ -82,6 +82,13 @@ function ProviderProfile() {
       </Link>
 
       <div className="page-header">
+        {provider.profile_image_url && (
+          <img
+            className="provider-avatar"
+            src={provider.profile_image_url}
+            alt={businessName}
+          />
+        )}
         <span className="eyebrow">SERVICE PROVIDER</span>
         <h1>{businessName}</h1>
 
