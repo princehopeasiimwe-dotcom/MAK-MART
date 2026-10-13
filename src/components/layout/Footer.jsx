@@ -1,142 +1,58 @@
-import logo from "../../assets/logos/mak mart logo.png";
 import { Link } from "react-router-dom";
-import {
-  Instagram,
-  Facebook,
-  Mail,
-  MapPin,
-  ArrowUpRight,
-} from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
+import Brand from "./Brand";
 
 function Footer() {
-  const currentYear = new Date().getFullYear();
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="footer">
-      <div className="footer__container">
-        {/* BRAND */}
-        <div className="footer__brand">
-          <Link to="/" className="footer__logo">
-            <div className="footer__logo-mark">
-              <img src={logo} alt="MAK MART Logo" />
-            </div>
+    <footer className="mm-footer">
+      <div className="mm-footer__grid mm-container">
+        <div className="mm-footer__brand">
+          <Brand />
 
-            <div>
-              <strong>MAK MART</strong>
-              <span>Makerere Marketplace</span>
-            </div>
-          </Link>
+          <p>Student businesses. Campus essentials.</p>
+          <p>Your community, all in one place.</p>
 
-          <p>
-            Makerere University's marketplace for
-            student entrepreneurs, products, services
-            and campus opportunities.
+          <p className="mm-footer__line">
+            <MapPin size={19} aria-hidden="true" />
+            Makerere University, Kampala
           </p>
 
-          <div className="footer__socials">
-            <a
-              href="#"
-              aria-label="MAK MART Instagram"
-            >
+          <p className="mm-footer__line">
+            <Mail size={19} aria-hidden="true" />
+            <a href="mailto:hello@makmart.com">hello@makmart.com</a>
+          </p>
+
+          <div className="mm-footer__socials">
+            <a href="#" aria-label="MAK MART on Instagram">
               <Instagram size={19} />
             </a>
-
-            <a
-              href="#"
-              aria-label="MAK MART Facebook"
-            >
+            <a href="#" aria-label="MAK MART on Facebook">
               <Facebook size={19} />
-            </a>
-
-            <a
-              href="mailto:hello@kumarket.com"
-              aria-label="Email MAK MART"
-            >
-              <Mail size={19} />
             </a>
           </div>
         </div>
 
-        {/* MARKETPLACE */}
-        <div className="footer__column">
+        <div className="mm-footer__col">
           <h3>Marketplace</h3>
-
-          <Link to="/products">
-            Browse products
-          </Link>
-
-          <Link to="/vendors">
-            Student vendors
-          </Link>
-
-          <Link to="/services">
-            Find services
-          </Link>
-
-          <Link to="/events">
-            Campus events
-          </Link>
+          <Link to="/marketplace/products">Browse products</Link>
+          <Link to="/services">Campus services</Link>
+          <Link to="/marketplace/vendors">Student vendors</Link>
+          <Link to="/marketplace/events">Campus events</Link>
         </div>
 
-        {/* SELL */}
-        <div className="footer__column">
-          <h3>For sellers</h3>
-
-          <Link to="/vendor/signup">
-            Become a vendor
-          </Link>
-
-          <Link to="/login">
-            Vendor login
-          </Link>
-
-          <Link to="/vendor/dashboard">
-            Vendor dashboard
-          </Link>
-
-          <Link to="/vendor/products">
-            Manage products
-          </Link>
-        </div>
-
-        {/* CONTACT */}
-        <div className="footer__column footer__contact">
-          <h3>MAK MART</h3>
-
-          <p>
-            <MapPin size={17} />
-            Makerere University, Kampala
-          </p>
-
-          <a href="mailto:hello@makmart.com">
-            <Mail size={17} />
-            hello@makmart.com
-          </a>
-
-          <Link
-            to="/vendor/signup"
-            className="footer__cta-link"
-          >
-            Start selling
-            <ArrowUpRight size={17} />
-          </Link>
+        <div className="mm-footer__col">
+          <h3>For our community</h3>
+          <Link to="/vendor/signup">Become a vendor</Link>
+          <Link to="/vendor/dashboard">Vendor dashboard</Link>
+          <Link to="/provider/signup">Service providers</Link>
+          <Link to="/account">Your account</Link>
         </div>
       </div>
 
-      <div className="footer__bottom">
-        <p>
-          © {currentYear} MAK MART. All rights reserved.
-        </p>
-
-        <div>
-          <Link to="/privacy">
-            Privacy
-          </Link>
-
-          <Link to="/terms">
-            Terms
-          </Link>
-        </div>
+      <div className="mm-footer__bottom mm-container">
+        <p>&copy; {year} MAK MART. All rights reserved.</p>
       </div>
     </footer>
   );

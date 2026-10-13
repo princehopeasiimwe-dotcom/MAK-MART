@@ -1,38 +1,37 @@
 import { Link } from "react-router-dom";
+import { ArrowRight, ArrowUpRight, Camera, GraduationCap, Palette } from "lucide-react";
 
 const services = [
-  { icon: "📸", name: "Photography" },
-  { icon: "🎨", name: "Graphic Design" },
-  { icon: "📚", name: "Tutoring" },
-  { icon: "🧺", name: "Laundry" },
-  { icon: "🚚", name: "Delivery" },
-  { icon: "💻", name: "Tech Services" },
+  { icon: Camera, name: "Photography", text: "Capture your campus moments" },
+  { icon: Palette, name: "Graphic Design", text: "Bring your next idea to life" },
+  { icon: GraduationCap, name: "Tutoring", text: "Learn faster with peer support" },
 ];
 
 function ServicePreview() {
   return (
-    <section className="section services-preview">
-      <div className="section-heading">
+    <section className="mm-section mm-container">
+      <div className="mm-section__head">
         <div>
-          <span className="eyebrow">NEED A SERVICE?</span>
-          <h2>Campus services</h2>
+          <span className="mm-eyebrow">A LITTLE HELP GOES A LONG WAY</span>
+          <h2>Campus services, sorted.</h2>
         </div>
 
-        <Link to="/services" className="text-link">
-          View all →
+        <Link to="/services" className="mm-viewall">
+          View all <ArrowRight size={18} />
         </Link>
       </div>
 
-      <div className="services-grid">
-        {services.map((service) => (
-          <Link
-            to="/services"
-            className="service-preview-card"
-            key={service.name}
-          >
-            <span className="service-icon">{service.icon}</span>
-            <strong>{service.name}</strong>
-            <small>Find providers →</small>
+      <div className="mm-services">
+        {services.map(({ icon: Icon, name, text }) => (
+          <Link to="/services" className="mm-service" key={name}>
+            <span className="mm-service__icon">
+              <Icon size={30} strokeWidth={1.7} />
+            </span>
+            <span className="mm-service__text">
+              <strong>{name}</strong>
+              <small>{text}</small>
+            </span>
+            <ArrowUpRight size={22} className="mm-service__arrow" />
           </Link>
         ))}
       </div>

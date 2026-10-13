@@ -1,130 +1,182 @@
-import logo from "../../assets/logos/mak mart logo.png";
-import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  Menu, X, Search, ShoppingCart, Store, User, MapPin, ChevronDown
+  ChevronDown,
+  MapPin,
+  Menu,
+  Search,
+  ShoppingBag,
+  User,
+  X,
 } from "lucide-react";
+import Brand from "./Brand";
+import useAuth from "../../hooks/useAuth";
 import { useCart } from "../../context/CartContext";
-import ProductService from "../../services/ProductService";
 
 function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const { cartCount } = useCart();
-  const closeMenu = () => setMenuOpen(false);
+  const { user, isAdmin, isVendor, isServiceProvider, signOut } = useAuth();
 
-  const [categories, setCategories] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [marketOpen, setMarketOpen] = useState(false);
+  const marketRef = useRef(null);
 
+  // Close menus whenever the page changes.
   useEffect(() => {
-    ProductService.getCategories()
-      .then((data) => setCategories(data.slice(0, 5)))
-      .catch(() => setCategories([]));
+    setMenuOpen(false);
+    setMarketOpen(false);
+  }, [location.pathname]);
+
+  // Close the Marketplace dropdown when clicking elsewhere.
+  useEffect(() => {
+    const onClick = (event) => {
+      if (marketRef.current && !marketRef.current.contains(event.target)) {
+        setMarketOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const query = new FormData(event.currentTarget).get("search")?.trim();
+    navigate(
+      query
+        ? `/marketplace/products?search=${encodeURIComponent(query)}`
+        : "/marketplace/products"
+    );
+  };
+
+  const dashboardPath = isAdmin
+    ? "/admin/dashboard"
+    : isVendor
+    ? "/vendor/dashboard"
+    : isServiceProvider
+    ? "/provider/dashboard"
+    : null;
+
+  const handleSignOut = async () => {
+    setMenuOpen(false);
+    try {
+      await signOut();
+    } finally {
+      navigate("/");
+    }
+  };
+
   return (
-    <header className="navbar jumia-navbar">
-      <div className="jumia-topbar">
-        <div className="navbar__container">
-          <span>Welcome to MAK MART — Makerere's student marketplace</span>
-          <div className="jumia-topbar__links">
-            <Link to="/vendor/signup">Sell on MAK MART</Link>
-            <Link to="/marketplace/vendors">Discover vendors</Link>
-            <Link to="/services">Campus services</Link>
-          </div>
-        </div>
+    <header className="mm-header">
+      <div className="mm-topbar">
+        <MapPin size={15} aria-hidden="true" />
+        <span>Made for Makerere. Powered by our community.</span>
       </div>
 
-      <div className="navbar__container navbar__main">
-        <Link to="/" className="navbar__brand" onClick={closeMenu}>
-          <div className="navbar__logo">
-            <img src={logo} alt="MAK MART Logo" />
-          </div>
-          <div className="navbar__brand-text">
-            <strong>MAK MART</strong>
-            <span>Makerere Marketplace</span>
-          </div>
-        </Link>
+      <div className="mm-header__main mm-container">
+        <Brand />
 
-        <form
-          className="navbar__search"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const query = new FormData(event.currentTarget).get("search");
-            window.location.href = query?.trim()
-              ? `/marketplace/products?search=${encodeURIComponent(query.trim())}`
-              : "/marketplace/products";
-          }}
-        >
-          <Search size={19} />
-          <input name="search" type="search" placeholder="Search products, brands and services..." />
+        <form className="mm-search" onSubmit={handleSearch} role="search">
+          <Search size={20} aria-hidden="true" />
+          <input
+            name="search"
+            type="search"
+            placeholder="Search products, services and more..."
+            aria-label="Search"
+          />
           <button type="submit">Search</button>
         </form>
 
-        <nav className="navbar__nav">
-          <NavLink to="/" end className="navbar__link">Home</NavLink>
-          <NavLink to="/marketplace/products" className="navbar__link">Market</NavLink>
-          <NavLink to="/marketplace/events" className="navbar__link">Events</NavLink>
-          <NavLink to="/services" className="navbar__link">Services</NavLink>
-          <NavLink to="/marketplace/vendors" className="navbar__link">Vendors</NavLink>
-        </nav>
-
-        <div className="navbar__actions">
-          <Link to="/login" className="navbar__account">
-            <User size={19} />
-            <span>Account</span>
-            <ChevronDown size={14} />
+        <div className="mm-header__actions">
+          <Link
+            to={user ? "/account" : "/login"}
+            className="mm-icon-button"
+            aria-label={user ? "My account" : "Sign in"}
+          >
+            <User size={23} />
           </Link>
 
-          <Link to="/cart" className="navbar__cart" aria-label="Shopping cart">
-            <span className="navbar__cart-icon">
-              <ShoppingCart size={21} />
-              {cartCount > 0 && <b>{cartCount}</b>}
-            </span>
-            <span>Cart</span>
+          <Link to="/cart" className="mm-icon-button" aria-label="Shopping cart">
+            <ShoppingBag size={23} />
+            {cartCount > 0 && <b className="mm-badge">{cartCount}</b>}
           </Link>
 
-          <Link to="/vendor/signup" className="navbar__vendor-button">
-            <Store size={17} />
-            Sell
-          </Link>
+          <button
+            type="button"
+            className="mm-icon-button mm-menu-toggle"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
-
-        <button type="button" className="navbar__menu-button" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation menu">
-          {menuOpen ? <X size={25} /> : <Menu size={25} />}
-        </button>
       </div>
 
-      <div className="jumia-categorybar">
-        <div className="navbar__container">
-          <Link to="/marketplace/products" className="jumia-categorybar__all">
-            <Menu size={18} /> Categories
-          </Link>
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              to={`/marketplace/products?category=${category.id}`}
+      <nav className="mm-nav" aria-label="Main">
+        <div className="mm-nav__scroll mm-container">
+          <NavLink to="/" end className="mm-nav__link">
+            Home
+          </NavLink>
+
+          <div className="mm-nav__dropdown" ref={marketRef}>
+            <NavLink
+              to="/marketplace/products"
+              className="mm-nav__link"
+              onClick={() => setMarketOpen(false)}
             >
-              {category.name}
-            </Link>
-          ))}
-          <Link to="/services">Services</Link>
-          <span className="jumia-location"><MapPin size={15} /> Makerere University</span>
+              Marketplace
+            </NavLink>
+            <button
+              type="button"
+              className="mm-nav__chevron"
+              aria-label="Marketplace menu"
+              aria-expanded={marketOpen}
+              onClick={() => setMarketOpen((open) => !open)}
+            >
+              <ChevronDown size={16} />
+            </button>
+
+            {marketOpen && (
+              <div className="mm-dropdown">
+                <Link to="/marketplace/products">Browse products</Link>
+                <Link to="/marketplace/vendors">Student vendors</Link>
+                <Link to="/marketplace/events">Campus events</Link>
+              </div>
+            )}
+          </div>
+
+          <NavLink to="/services" className="mm-nav__link">
+            Services
+          </NavLink>
+          <NavLink to="/marketplace/events" className="mm-nav__link">
+            Events
+          </NavLink>
+          <NavLink to="/marketplace/vendors" className="mm-nav__link">
+            Vendors
+          </NavLink>
         </div>
-      </div>
+      </nav>
 
       {menuOpen && (
-        <div className="navbar__mobile-menu">
-          <nav className="navbar__mobile-nav">
-            <NavLink to="/" end onClick={closeMenu} className="navbar__mobile-link">Home</NavLink>
-            <NavLink to="/marketplace/products" onClick={closeMenu} className="navbar__mobile-link">Market</NavLink>
-            <NavLink to="/marketplace/events" onClick={closeMenu} className="navbar__mobile-link">Events</NavLink>
-            <NavLink to="/services" onClick={closeMenu} className="navbar__mobile-link">Services</NavLink>
-            <NavLink to="/marketplace/vendors" onClick={closeMenu} className="navbar__mobile-link">Vendors</NavLink>
-            <NavLink to="/cart" onClick={closeMenu} className="navbar__mobile-link">Cart ({cartCount})</NavLink>
-          </nav>
-          <div className="navbar__mobile-actions">
-            <Link to="/login" onClick={closeMenu} className="navbar__mobile-login"><User size={18} /> Login / Sign up</Link>
-            <Link to="/vendor/signup" onClick={closeMenu} className="navbar__mobile-vendor"><Store size={18} /> Become a Vendor</Link>
-          </div>
+        <div className="mm-menu mm-container">
+          {user ? (
+            <>
+              <Link to="/account">My account</Link>
+              {dashboardPath && <Link to={dashboardPath}>My dashboard</Link>}
+              <button type="button" onClick={handleSignOut}>
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">Log in</Link>
+              <Link to="/signup">Create an account</Link>
+            </>
+          )}
+          {!isVendor && <Link to="/vendor/signup">Become a vendor</Link>}
+          {!isServiceProvider && <Link to="/provider/signup">Offer a service</Link>}
         </div>
       )}
     </header>

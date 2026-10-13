@@ -1,37 +1,23 @@
-import { ArrowRight, Store } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 function VendorCTA() {
   return (
-    <section className="vendor-cta">
-      <div className="vendor-cta__content">
-        <div className="vendor-cta__icon">
-          <Store size={30} />
-        </div>
-
-        <span className="eyebrow eyebrow--light">
-          ARE YOU A STUDENT ENTREPRENEUR?
+    <section className="mm-cta">
+      <div className="mm-cta__inner mm-container">
+        <span className="mm-eyebrow mm-eyebrow--light">
+          MADE SOMETHING? SELL SOMETHING.
         </span>
 
-        <h2>
-          Turn your hustle
-          <br />
-          into a storefront.
-        </h2>
+        <h2>Your hustle deserves a storefront.</h2>
 
         <p>
-          Create your vendor account, upload products
-          and reach the Makerere University community
-          through MAK MART.
+          Join the MAK MART community and reach students right around you.
         </p>
 
-        <Link
-          to="/vendor/signup"
-          className="vendor-cta__button"
-        >
+        <Link to="/vendor/signup" className="mm-btn mm-btn--primary mm-btn--wide">
           Start selling on MAK MART
-          <span className="sr-only">Start selling on MAK MART</span>
-          <ArrowRight size={19} />
+          <ArrowRight size={20} />
         </Link>
       </div>
     </section>
