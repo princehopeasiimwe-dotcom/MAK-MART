@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 
 // Landing page for the link in the password-reset email.
@@ -77,6 +78,8 @@ function UpdatePassword() {
   return (
     <section className="auth-page">
       <div className="auth-card">
+        <AuthBack />
+
         <span className="eyebrow">ACCOUNT RECOVERY</span>
 
         <h1>Choose a new password</h1>

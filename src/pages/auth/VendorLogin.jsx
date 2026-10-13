@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 import { getHomePathForUser } from "../../lib/authRedirect";
 
@@ -43,6 +44,8 @@ function VendorLogin() {
   return (
     <section className="auth-page">
       <div className="auth-card">
+        <AuthBack />
+
         <span className="eyebrow">WELCOME BACK</span>
 
         <h1>Login</h1>

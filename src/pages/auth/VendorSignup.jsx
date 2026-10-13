@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 
 // Signup for sellers. accountType is "vendor" (sells products) or
@@ -75,6 +76,8 @@ function VendorSignUp({ accountType = "vendor" }) {
   return (
     <section className="auth-page">
       <div className="auth-card auth-card--wide">
+        <AuthBack />
+
         <span className="eyebrow">JOIN MAK MART</span>
 
         <h1>{isProvider ? "Offer your service" : "Create your store"}</h1>

@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 
+// Buyer account. Optional - shoppers can still order through
+// WhatsApp as guests - but a signed-in buyer gets an order record.
 function CustomerSignup() {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
     full_name: "",
+    phone: "",
     email: "",
     password: "",
   });
@@ -19,68 +24,61 @@ function CustomerSignup() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     setLoading(true);
     setError("");
 
-    try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-          data: { full_name: form.full_name },
+    const { data, error: authError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+        data: {
+          account_type: "customer",
+          full_name: form.full_name,
+          phone: form.phone,
         },
-      });
+      },
+    });
 
-      if (signUpError) {
-        setError(signUpError.message);
-        return;
-      }
+    setLoading(false);
 
-      const needsConfirmation = !data.session;
-
-      if (!needsConfirmation) {
-        const { error: signOutError } = await supabase.auth.signOut();
-        if (signOutError) {
-          setError(signOutError.message);
-          return;
-        }
-      }
-
-      navigate("/login", {
-        state: {
-          message: needsConfirmation
-            ? "Account created. Please confirm your email, then log in."
-            : "Account created. You can now log in.",
-        },
-      });
-    } catch (signupError) {
-      setError(
-        signupError instanceof Error
-          ? signupError.message
-          : "Unable to create your account. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    if (authError) {
+      setError(authError.message);
+      return;
     }
+
+    if (data.session) {
+      navigate("/", { replace: true });
+      return;
+    }
+
+    navigate("/login", {
+      state: {
+        message: "Account created. Please confirm your email, then log in.",
+      },
+    });
   };
 
   return (
     <section className="auth-page">
       <div className="auth-card">
+        <AuthBack />
+
         <span className="eyebrow">JOIN MAK MART</span>
-        <h1>Create your account</h1>
-        <p>Sign up to shop from the Makerere University community.</p>
+
+        <h1>Create an account</h1>
+
+        <p>Track your orders and check out faster.</p>
 
         {error && <div className="form-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="signup-name">Full name</label>
+            <label htmlFor="cs-name">Full name</label>
             <input
-              id="signup-name"
+              id="cs-name"
               name="full_name"
-              autoComplete="name"
               value={form.full_name}
               onChange={handleChange}
               required
@@ -88,12 +86,22 @@ function CustomerSignup() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="signup-email">Email address</label>
+            <label htmlFor="cs-phone">Phone number</label>
             <input
-              id="signup-email"
+              id="cs-phone"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="+256..."
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="cs-email">Email</label>
+            <input
+              id="cs-email"
               name="email"
               type="email"
-              autoComplete="email"
               value={form.email}
               onChange={handleChange}
               required
@@ -101,15 +109,14 @@ function CustomerSignup() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="signup-password">Password</label>
+            <label htmlFor="cs-password">Password</label>
             <input
-              id="signup-password"
+              id="cs-password"
               name="password"
               type="password"
-              autoComplete="new-password"
-              minLength={8}
               value={form.password}
               onChange={handleChange}
+              minLength="8"
               required
             />
           </div>
@@ -119,7 +126,7 @@ function CustomerSignup() {
             className="primary-button full-width"
             disabled={loading}
           >
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? "Creating account..." : "Sign up"}
           </button>
         </form>
 

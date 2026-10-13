@@ -15,6 +15,7 @@ import { useCart } from "../../context/CartContext";
 import Loader from "../../components/common/loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import OrderModal from "../../components/marketplace/OrderModal";
+import MoreCampusFinds from "../../components/marketplace/MoreCampusFinds";
 import { formatCurrency } from "../../utils/currency";
 
 function ProductDetails() {
@@ -64,7 +65,7 @@ function ProductDetails() {
   const vendorName =
     vendor?.business_name ||
     product.vendor_name ||
-    "KU Market Vendor";
+    "MAK MART Vendor";
 
   return (
     <section className="page product-details-page">
@@ -139,6 +140,11 @@ function ProductDetails() {
         product={product}
         isOpen={orderModalOpen}
         onClose={() => setOrderModalOpen(false)}
+      />
+
+      <MoreCampusFinds
+        currentId={product.id}
+        categoryId={product.category_id}
       />
     </section>
   );

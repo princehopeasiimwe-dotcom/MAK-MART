@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 
 function ResetPassword() {
@@ -40,6 +41,8 @@ function ResetPassword() {
   return (
     <section className="auth-page">
       <div className="auth-card">
+        <AuthBack />
+
         <span className="eyebrow">
           ACCOUNT RECOVERY
         </span>

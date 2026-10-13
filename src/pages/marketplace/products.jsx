@@ -60,7 +60,7 @@ function Products() {
     <section className="page products-page">
       <div className="page-header">
         <span className="eyebrow">
-          KU MARKETPLACE
+          MAK MART | STUDENT MARKETPLACE
         </span>
 
         <h1>Explore Products</h1>
