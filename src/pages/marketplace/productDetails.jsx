@@ -18,6 +18,8 @@ import OrderModal from "../../components/marketplace/OrderModal";
 import MoreCampusFinds from "../../components/marketplace/MoreCampusFinds";
 import { formatCurrency } from "../../utils/currency";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function ProductDetails() {
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -32,6 +34,8 @@ function ProductDetails() {
 
   const [orderModalOpen, setOrderModalOpen] =
     useState(false);
+
+  usePageSeo({ title: product?.name || "Product", description: product?.description || (product?.name ? `Buy ${product.name} on MAK MART, Makerere University's student marketplace.` : undefined), image: product?.image_url });
 
   useEffect(() => {
     getProduct(productId).then(setProduct);

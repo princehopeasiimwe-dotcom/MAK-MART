@@ -5,7 +5,11 @@ import ProductService from "../../services/ProductService";
 import ProductGrid from "../../components/marketplace/productGrid";
 import SearchBar from "../../components/marketplace/SearchBar";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function Products() {
+  usePageSeo({ title: "Browse products", description: "Shop products from trusted Makerere University student vendors: electronics, fashion, books, food and more." });
+
   const [searchParams, setSearchParams] =
     useSearchParams();
 
@@ -60,7 +64,7 @@ function Products() {
     <section className="page products-page">
       <div className="page-header">
         <span className="eyebrow">
-          MAK MART | STUDENT MARKETPLACE
+          MAK MART MARKETPLACE
         </span>
 
         <h1>Explore Products</h1>
@@ -74,7 +78,7 @@ function Products() {
       <SearchBar
         initialValue={search}
         onSearch={handleSearch}
-        placeholder="Search KU Market..."
+        placeholder="Search MAK MART..."
       />
 
       {category && (

@@ -7,9 +7,13 @@ import useService from "../../hooks/useService";
 import { formatCurrency } from "../../utils/currency";
 import { openWhatsApp } from "../../lib/whatsapp";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function ServiceDetails() {
   const { serviceId } = useParams();
   const { service, loading, error, fetchService } = useService(serviceId);
+
+  usePageSeo({ title: service?.name || "Service", description: service?.description, image: service?.image_url });
 
   useEffect(() => {
     fetchService(serviceId);
@@ -27,7 +31,7 @@ function ServiceDetails() {
 
     openWhatsApp(
       providerPhone,
-      `Hi ${provider.business_name}, I found "${service.name}" on KU Market and I'd like to know more.`
+      `Hi ${provider.business_name}, I found "${service.name}" on MAK MART and I'd like to know more.`
     );
   };
 

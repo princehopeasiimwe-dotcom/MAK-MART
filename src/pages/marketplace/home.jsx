@@ -26,7 +26,11 @@ const PILLARS = [
   { icon: ShieldCheck, title: "Clear prices", text: "Honest prices and real vendor profiles." },
 ];
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function Home() {
+  usePageSeo({ title: "" });
+
   const { products: featured, loading: featuredLoading } = useProducts({ featured: true });
   const { products: allProducts, loading: allLoading } = useProducts({});
   const { events, loading: eventsLoading } = useEvents();

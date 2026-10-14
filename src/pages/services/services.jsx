@@ -2,7 +2,11 @@ import { useEffect } from "react";
 import ServiceCard from "../../components/services/ServiceCard";
 import useService from "../../hooks/useService";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function Services() {
+  usePageSeo({ title: "Campus services", description: "Find student-run services around Makerere University: tutoring, printing, hair, repairs and more." });
+
 	const { services, loading, error, fetchServices } = useService();
 
 	useEffect(() => {
@@ -12,7 +16,7 @@ function Services() {
 	return (
 		<main className="page-container">
 			<div className="page-header">
-				<span className="eyebrow">KU MARKET SERVICES</span>
+				<span className="eyebrow">MAK MART SERVICES</span>
 				<h1>Services around campus</h1>
 				<p>Find trusted student providers for your next task.</p>
 			</div>

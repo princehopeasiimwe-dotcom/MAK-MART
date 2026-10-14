@@ -3,7 +3,11 @@ import EventCard from "../../components/events/EventCard";
 import Loader from "../../components/common/loader";
 import EmptyState from "../../components/common/EmptyState";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function Events() {
+  usePageSeo({ title: "Campus events", description: "Upcoming events and pop-ups from vendors and organisers at Makerere University." });
+
   const {
     events,
     loading,

@@ -4,7 +4,11 @@ import VendorCard from "../../components/vendor/vendorCard";
 import Loader from "../../components/common/loader";
 import EmptyState from "../../components/common/EmptyState";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function Vendors() {
+  usePageSeo({ title: "Campus vendors", description: "Meet the verified student vendors selling on MAK MART at Makerere University." });
+
   const [vendors, setVendors] =
     useState([]);
 

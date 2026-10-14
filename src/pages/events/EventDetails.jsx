@@ -9,6 +9,8 @@ import Loader from "../../components/common/loader";
 import { formatCurrency } from "../../utils/currency";
 import { openWhatsApp } from "../../lib/whatsapp";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function EventDetails() {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -18,6 +20,8 @@ function EventDetails() {
 
   const [event, setEvent] =
     useState(null);
+
+  usePageSeo({ title: event?.title || "Event", description: event?.description, image: event?.image_url });
 
   useEffect(() => {
     getEvent(eventId).then(setEvent);

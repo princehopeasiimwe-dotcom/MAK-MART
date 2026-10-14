@@ -8,7 +8,11 @@ import { getHomePathForUser } from "../../lib/authRedirect";
 // providers, admins). Served at /login, /vendor/login and
 // /provider/login. After signing in, each user is sent to their
 // own dashboard (or back to the page they came from).
+import usePageSeo from "../../hooks/usePageSeo";
+
 function VendorLogin() {
+  usePageSeo({ title: "Login", noindex: true });
+
   const navigate = useNavigate();
   const location = useLocation();
 

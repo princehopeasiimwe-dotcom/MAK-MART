@@ -5,7 +5,11 @@ import { supabase } from "../../lib/supabase";
 
 // Buyer account. Optional - shoppers can still order through
 // WhatsApp as guests - but a signed-in buyer gets an order record.
+import usePageSeo from "../../hooks/usePageSeo";
+
 function CustomerSignup() {
+  usePageSeo({ title: "Create account", noindex: true });
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({

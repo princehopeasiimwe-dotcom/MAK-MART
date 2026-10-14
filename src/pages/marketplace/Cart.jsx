@@ -7,7 +7,11 @@ import EmptyState from "../../components/common/EmptyState";
 import CartCheckoutModal from "../../components/marketplace/CartCheckoutModal";
 import { formatCurrency } from "../../utils/currency";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function Cart() {
+  usePageSeo({ title: "Your cart", noindex: true });
+
   const {
     items,
     updateQuantity,

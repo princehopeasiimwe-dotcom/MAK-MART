@@ -8,11 +8,15 @@ import ProductService from "../../services/ProductService";
 import ProductGrid from "../../components/marketplace/productGrid";
 import Loader from "../../components/common/loader";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function VendorProfile() {
   const { vendorId } = useParams();
 
   const [vendor, setVendor] =
     useState(null);
+
+  usePageSeo({ title: vendor?.business_name || "Vendor", description: vendor?.description, image: vendor?.logo_url });
 
   const [products, setProducts] =
     useState([]);

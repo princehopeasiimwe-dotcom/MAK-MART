@@ -6,10 +6,14 @@ import ServiceService from "../../services/services";
 import ServiceCard from "../../components/services/ServiceCard";
 import { createWhatsAppLink } from "../../lib/whatsapp";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function ProviderProfile() {
   const { providerId } = useParams();
 
   const [provider, setProvider] = useState(null);
+  usePageSeo({ title: provider?.business_name || "Service provider", description: provider?.description, image: provider?.profile_image_url });
+
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

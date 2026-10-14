@@ -5,7 +5,11 @@ import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import { formatCurrency } from "../../utils/currency";
 
+import usePageSeo from "../../hooks/usePageSeo";
+
 function Account() {
+  usePageSeo({ title: "Your account", noindex: true });
+
   const navigate = useNavigate();
   const { user, profile, isAdmin, isVendor, isServiceProvider, loading, signOut } =
     useAuth();

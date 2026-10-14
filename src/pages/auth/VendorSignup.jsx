@@ -9,7 +9,11 @@ import { supabase } from "../../lib/supabase";
 // (see migration 012), so this works whether or not email
 // confirmation is switched on in Supabase. New accounts always
 // start unapproved until an admin activates them.
+import usePageSeo from "../../hooks/usePageSeo";
+
 function VendorSignUp({ accountType = "vendor" }) {
+  usePageSeo({ title: accountType === "service_provider" ? "Offer a service" : "Become a vendor" });
+
   const navigate = useNavigate();
   const isProvider = accountType === "service_provider";
 
