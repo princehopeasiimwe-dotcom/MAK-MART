@@ -19,14 +19,14 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg"],
+      includeAssets: ["favicon.png", "apple-touch-icon.png"],
       manifest: {
         name: "MAK MART | Makerere Student Marketplace",
         short_name: "MAK MART",
         description:
           "MAK MART - Makerere University's student marketplace for products, events and services.",
-        theme_color: "#ff6b35",
-        background_color: "#fffaf8",
+        theme_color: "#15352a",
+        background_color: "#faf8f6",
         display: "standalone",
         start_url: "/",
         scope: "/",
@@ -35,11 +35,13 @@ export default defineConfig({
             src: "/icons/icon-192.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any",
           },
           {
             src: "/icons/icon-512.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any",
           },
           {
             src: "/icons/maskable-icon.png",
