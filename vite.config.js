@@ -1,6 +1,25 @@
+import { execFileSync } from "node:child_process";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+
+// Writes public/sitemap.xml + public/robots.txt on every production build,
+// no matter which build command the host runs (npm run build or vite build).
+function sitemapPlugin() {
+  return {
+    name: "mak-mart-sitemap",
+    apply: "build",
+    buildStart() {
+      try {
+        execFileSync(process.execPath, ["scripts/generate-sitemap.mjs"], {
+          stdio: "inherit",
+        });
+      } catch (err) {
+        console.warn("sitemap: skipped (" + err.message + ")");
+      }
+    },
+  };
+}
 
 export default defineConfig({
   build: {
@@ -16,6 +35,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    sitemapPlugin(),
     react(),
     VitePWA({
       registerType: "autoUpdate",
@@ -53,7 +73,13 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
-        navigateFallbackDenylist: [/^\/admin/, /^\/vendor/],
+        navigateFallbackDenylist: [
+          /^\/admin/,
+          /^\/vendor/,
+          /^\/sitemap\.xml$/,
+          /^\/robots\.txt$/,
+          /^\/google.*\.html$/,
+        ],
       },
     }),
   ],
