@@ -46,12 +46,21 @@ const tables = [
   ["events", "/marketplace/events/", "0.6"],
 ];
 
-async function fetchIds(table) {
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?select=id,updated_at&limit=1000`, {
+async function fetchRows(table, columns) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?select=${columns}&limit=1000`, {
     headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` },
   });
   if (!res.ok) throw new Error(`${table}: HTTP ${res.status}`);
   return res.json();
+}
+
+// Some tables have no updated_at column, so fall back to just the id.
+async function fetchIds(table) {
+  try {
+    return await fetchRows(table, "id,updated_at");
+  } catch {
+    return fetchRows(table, "id");
+  }
 }
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
