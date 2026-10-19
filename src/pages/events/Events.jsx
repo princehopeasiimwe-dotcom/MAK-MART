@@ -11,7 +11,7 @@ function Events() {
   const {
     events,
     loading,
-  } = useEvents();
+  } = useEvents({ upcomingOnly: true });
 
   if (loading) {
     return <Loader message="Loading events..." />;

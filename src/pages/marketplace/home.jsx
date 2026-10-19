@@ -33,7 +33,7 @@ function Home() {
 
   const { products: featured, loading: featuredLoading } = useProducts({ featured: true });
   const { products: allProducts, loading: allLoading } = useProducts({});
-  const { events, loading: eventsLoading } = useEvents();
+  const { events, loading: eventsLoading } = useEvents({ upcomingOnly: true });
 
   const [categories, setCategories] = useState([]);
 

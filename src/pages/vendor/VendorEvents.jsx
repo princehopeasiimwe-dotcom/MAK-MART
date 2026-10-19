@@ -4,6 +4,15 @@ import useEvents from "../../hooks/useEvents";
 import EventForm from "../../components/vendor/EventForm";
 import Modal from "../../components/common/modal";
 
+// Ended = past its end time (or 24h after start when no end time was set)
+function isEnded(event) {
+  const end = event.end_time
+    ? new Date(event.end_time)
+    : new Date(new Date(event.start_time).getTime() + 24 * 60 * 60 * 1000);
+
+  return end < new Date();
+}
+
 function VendorEvents() {
   const { user } = useAuth();
 
@@ -71,7 +80,14 @@ function VendorEvents() {
               className="management-item"
             >
               <div>
-                <h3>{event.title}</h3>
+                <h3>
+                  {event.title}
+                  {isEnded(event) && (
+                    <span className="status-badge status-badge--ended">
+                      {" "}Ended (hidden from the public)
+                    </span>
+                  )}
+                </h3>
                 <p>
                   {event.location || "No location"}
                 </p>

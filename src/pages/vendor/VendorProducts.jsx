@@ -36,7 +36,7 @@ function VendorProducts() {
     setModalOpen(true);
   };
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (data, { addAnother = false } = {}) => {
     const { image_url, ...productFields } = data;
 
     if (selectedProduct) {
@@ -55,7 +55,10 @@ function VendorProducts() {
       );
     }
 
-    setModalOpen(false);
+    // "Save & add another" keeps the window open for the next product
+    if (!addAnother) {
+      setModalOpen(false);
+    }
   };
 
   const handleDelete = async (product) => {

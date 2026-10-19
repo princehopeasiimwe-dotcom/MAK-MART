@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "../common/button";
 import ErrorMessage from "../common/ErrorMessage";
 import ImageUploadField from "../common/ImageUploadField";
@@ -39,6 +39,9 @@ function ProductForm({
 
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [saving, setSaving] = useState(false);
+  const formRef = useRef(null);
 
   useEffect(() => {
     ProductService.getCategories()
@@ -55,9 +58,11 @@ function ProductForm({
     }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  // addAnother = true keeps the window open and clears the form so the
+  // vendor can type the next product straight away.
+  const save = async (addAnother = false) => {
     setError("");
+    setSuccess("");
 
     if (!form.name.trim()) {
       setError("Product name is required.");
@@ -74,32 +79,65 @@ function ProductForm({
       return;
     }
 
+    setSaving(true);
+
     try {
-      await onSubmit?.({
-        name: form.name,
-        description: form.description,
-        price: Number(form.price),
-        stock_quantity: Number(form.stock_quantity) || 0,
-        condition: form.condition,
-        category_id: form.category_id,
-        image_url: form.image_url,
-      });
+      await onSubmit?.(
+        {
+          name: form.name,
+          description: form.description,
+          price: Number(form.price),
+          stock_quantity: Number(form.stock_quantity) || 0,
+          condition: form.condition,
+          category_id: form.category_id,
+          image_url: form.image_url,
+        },
+        { addAnother }
+      );
 
       if (!initialData) {
-        setForm(initialForm);
+        if (addAnother) {
+          // keep category + condition: vendors usually add similar items
+          setForm({
+            ...initialForm,
+            category_id: form.category_id,
+            condition: form.condition,
+          });
+          setSuccess(
+            `"${form.name.trim()}" saved. Add your next product below.`
+          );
+          formRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        } else {
+          setForm(initialForm);
+        }
       }
     } catch (err) {
       setError(
         err.message || "Unable to save product."
       );
+    } finally {
+      setSaving(false);
     }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    save(false);
   };
 
   return (
     <form
+      ref={formRef}
       className="vendor-form"
       onSubmit={handleSubmit}
     >
+      {success && (
+        <div className="form-success">{success}</div>
+      )}
+
       {error && (
         <ErrorMessage
           message={error}
@@ -219,14 +257,27 @@ function ProductForm({
         />
       </div>
 
-      <Button
-        type="submit"
-        loading={loading}
-      >
-        {initialData
-          ? "Update Product"
-          : "Add Product"}
-      </Button>
+      <div className="product-form-actions">
+        <Button
+          type="submit"
+          loading={loading || saving}
+        >
+          {initialData
+            ? "Update Product"
+            : "Add Product"}
+        </Button>
+
+        {!initialData && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={loading || saving}
+            onClick={() => save(true)}
+          >
+            Save &amp; add another
+          </Button>
+        )}
+      </div>
     </form>
   );
 }

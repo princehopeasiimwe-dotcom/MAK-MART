@@ -4,6 +4,7 @@ import EventService from "../services/eventService";
 function useEvents(options = {}) {
   const {
     createdBy = null,
+    upcomingOnly = false,
     autoLoad = true,
   } = options;
 
@@ -18,6 +19,7 @@ function useEvents(options = {}) {
 
       const data = await EventService.getEvents({
         createdBy,
+        upcomingOnly,
       });
 
       setEvents(data || []);
@@ -32,7 +34,7 @@ function useEvents(options = {}) {
     } finally {
       setLoading(false);
     }
-  }, [createdBy]);
+  }, [createdBy, upcomingOnly]);
 
   useEffect(() => {
     if (autoLoad) {
