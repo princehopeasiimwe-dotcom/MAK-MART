@@ -72,6 +72,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // phone notification handlers (public/push-sw.js)
+        importScripts: ["push-sw.js"],
         globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
         navigateFallbackDenylist: [
           /^\/admin/,
