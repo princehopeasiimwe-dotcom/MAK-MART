@@ -1242,3 +1242,62 @@
   margin-bottom: 10px;
   border: 1px solid #e7dfd7;
 }
+
+/* ===== Notification bell: clickable items, phone-alerts row, header fit ===== */
+.notification-bell__item.clickable { cursor: pointer; }
+.notification-bell__item:focus-visible { outline: 2px solid #ff6b35; outline-offset: -2px; }
+.notification-bell__item { width: 100%; box-sizing: border-box; }
+.notification-bell__item a {
+  color: #c2410c;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.notification-bell__push {
+  padding: 10px 14px;
+  border-bottom: 1px solid #ece6e0;
+  background: #faf8f6;
+  font-size: 0.78rem;
+  color: #5d5650;
+}
+.notification-bell__push p {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  line-height: 1.35;
+}
+.notification-bell__push svg { flex: 0 0 auto; margin-top: 2px; }
+.notification-bell__push button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #c2410c;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.notification-bell__push-error { margin-top: 6px !important; color: #b42318; }
+
+.mm-header__actions .notification-bell__trigger {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: var(--mm-text);
+}
+.mm-header__actions .notification-bell__trigger:hover { background: var(--mm-bg); }
+
+@media (max-width: 599px) {
+  .mm-header__actions .notification-bell { position: static; }
+  .mm-header__actions .notification-bell__panel {
+    position: fixed;
+    top: 64px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-height: 70vh;
+  }
+}
+.notification-bell__item span span { padding-left: 0; }

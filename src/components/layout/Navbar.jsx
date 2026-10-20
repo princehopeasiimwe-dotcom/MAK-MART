@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import Brand from "./Brand";
+import NotificationBell from "../common/NotificationBell";
 import useAuth from "../../hooks/useAuth";
 import { useCart } from "../../context/CartContext";
 
@@ -89,6 +90,8 @@ function Navbar() {
         </form>
 
         <div className="mm-header__actions">
+          {user && <NotificationBell />}
+
           <Link
             to={user ? "/account" : "/login"}
             className="mm-icon-button"

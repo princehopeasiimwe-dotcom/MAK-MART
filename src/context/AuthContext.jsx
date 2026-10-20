@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import { supabase } from "../lib/supabase";
+import { disablePush } from "../lib/push";
 
 const AuthContext = createContext(null);
 
@@ -139,6 +140,9 @@ export function AuthProvider({ children }) {
     },
 
     signOut: async () => {
+      // a shared phone must not keep receiving this account's alerts
+      await disablePush().catch(() => {});
+
       const { error } =
         await supabase.auth.signOut();
 
