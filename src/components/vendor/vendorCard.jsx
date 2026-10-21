@@ -1,15 +1,17 @@
 import { Link } from "react-router-dom";
 import { Store, MapPin, ArrowUpRight } from "lucide-react";
 
-function VendorCard({ vendor }) {
+import { StarRating } from "../common/Stars";
+
+function VendorCard({ vendor, stats }) {
   if (!vendor) return null;
 
-  const name = vendor.business_name || "KU Market Vendor";
+  const name = vendor.business_name || "MAK MART Vendor";
   const image = vendor.logo_url || vendor.cover_image_url;
   const location = vendor.location || "Main Campus";
   const description =
     vendor.description ||
-    "Student entrepreneur on KU Market.";
+    "Student entrepreneur on MAK MART.";
 
   return (
     <Link
@@ -28,6 +30,8 @@ function VendorCard({ vendor }) {
         <h3>{name}</h3>
 
         <p>{description}</p>
+
+        <StarRating value={stats?.rating_avg} count={stats?.rating_count} />
 
         <span className="vendor-card__location">
           <MapPin size={15} />

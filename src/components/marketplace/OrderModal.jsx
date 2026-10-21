@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useAuth from "../../hooks/useAuth";
 import { Minus, Plus, MessageCircle } from "lucide-react";
 
 import Modal from "../common/modal";
@@ -15,6 +16,14 @@ function OrderModal({ product, isOpen, onClose }) {
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const { profile } = useAuth();
+
+  // Save signed-in shoppers from retyping their details.
+  useEffect(() => {
+    if (!isOpen) return;
+    setCustomerName((current) => current || profile?.full_name || "");
+    setCustomerPhone((current) => current || profile?.phone || "");
+  }, [isOpen, profile?.full_name, profile?.phone]);
 
   if (!product) return null;
 

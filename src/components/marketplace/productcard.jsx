@@ -4,6 +4,8 @@ import { BadgeCheck, Heart, MapPin, ShoppingBag, Store } from "lucide-react";
 import { formatCurrency } from "../../utils/currency";
 import { useCart } from "../../context/CartContext";
 import useWishlist from "../../hooks/useWishlist";
+import useRatings from "../../hooks/useRatings";
+import { StarRating } from "../common/Stars";
 
 function isNew(dateString) {
   if (!dateString) return false;
@@ -14,6 +16,7 @@ function isNew(dateString) {
 function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { has, toggle } = useWishlist();
+  const { productStats, vendorStats } = useRatings();
   const [imageFailed, setImageFailed] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -112,6 +115,12 @@ function ProductCard({ product }) {
         <Link to={link} className="mm-card__title">
           <h3>{product?.name || "Unnamed product"}</h3>
         </Link>
+
+        <StarRating
+          value={productStats.get(productId)?.rating_avg ?? vendorStats.get(product?.vendor_id)?.rating_avg}
+          count={productStats.get(productId)?.rating_count ?? vendorStats.get(product?.vendor_id)?.rating_count}
+          size={14}
+        />
 
         <p className="mm-card__price">{formatCurrency(product?.price || 0)}</p>
 
