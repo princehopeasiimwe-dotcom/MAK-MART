@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "../../lib/supabase";
 import { formatCurrency } from "../../utils/currency";
+import MonthlyAudit from "../../components/admin/MonthlyAudit";
 
 function AdminReports() {
   const [rows, setRows] = useState([]);
@@ -78,9 +79,13 @@ function AdminReports() {
         <div>
           <span className="eyebrow">ADMINISTRATION</span>
           <h1>Reports</h1>
-          <p>Vendor performance by orders and completed revenue.</p>
+          <p>Monthly audit, plus vendor performance by orders and completed revenue.</p>
         </div>
       </div>
+
+      <MonthlyAudit />
+
+      <h2 className="audit__subhead">Vendor revenue</h2>
 
       {rows.length === 0 ? (
         <div className="empty-state">

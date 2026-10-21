@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import useProducts from "../../hooks/useProducts";
+import useRatings from "../../hooks/useRatings";
+import { rankProducts } from "../../lib/ranking";
 import ProductService from "../../services/ProductService";
 import ProductGrid from "../../components/marketplace/productGrid";
 import SearchBar from "../../components/marketplace/SearchBar";
@@ -22,13 +24,19 @@ function Products() {
   const [categoryName, setCategoryName] = useState("");
 
   const {
-    products,
+    products: rawProducts,
     loading,
     error,
   } = useProducts({
     search,
     category,
   });
+
+  const { vendorStats, productStats } = useRatings();
+  const products = useMemo(
+    () => rankProducts(rawProducts, vendorStats, productStats),
+    [rawProducts, vendorStats, productStats]
+  );
 
   useEffect(() => {
     if (!category) {

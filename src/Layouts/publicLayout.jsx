@@ -3,9 +3,15 @@ import { useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import MobileTabBar from "../components/layout/MobileTabBar";
+import { trackVisit } from "../lib/analytics";
 
 function PublicLayout() {
   const { pathname } = useLocation();
+
+  // Count this visitor once per browser session.
+  useEffect(() => {
+    trackVisit();
+  }, []);
 
   // Start every page at the top when navigating.
   useEffect(() => {

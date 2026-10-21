@@ -9,12 +9,16 @@ import ProductGrid from "../../components/marketplace/productGrid";
 import Loader from "../../components/common/loader";
 
 import usePageSeo from "../../hooks/usePageSeo";
+import useRatings from "../../hooks/useRatings";
+import { StarRating } from "../../components/common/Stars";
 
 function VendorProfile() {
   const { vendorId } = useParams();
 
   const [vendor, setVendor] =
     useState(null);
+
+  const { vendorStats } = useRatings();
 
   usePageSeo({ title: vendor?.business_name || "Vendor", description: vendor?.description, image: vendor?.logo_url });
 
@@ -84,6 +88,13 @@ function VendorProfile() {
           </span>
 
           <h1>{vendor.business_name}</h1>
+
+          <StarRating
+            value={vendorStats.get(vendor.id)?.rating_avg}
+            count={vendorStats.get(vendor.id)?.rating_count}
+            size={18}
+            showEmpty
+          />
 
           <p>
             {vendor.description ||

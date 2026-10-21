@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import useRatings from "../../hooks/useRatings";
+import { rankVendors } from "../../lib/ranking";
 import { supabase } from "../../lib/supabase";
 import VendorCard from "../../components/vendor/vendorCard";
 import Loader from "../../components/common/loader";
@@ -14,6 +16,9 @@ function Vendors() {
 
   const [loading, setLoading] =
     useState(true);
+
+  const { vendorStats } = useRatings();
+  const ranked = useMemo(() => rankVendors(vendors, vendorStats), [vendors, vendorStats]);
 
   useEffect(() => {
     const loadVendors = async () => {
@@ -64,10 +69,11 @@ function Vendors() {
         />
       ) : (
         <div className="vendor-grid">
-          {vendors.map((vendor) => (
+          {ranked.map((vendor) => (
             <VendorCard
               key={vendor.id}
               vendor={vendor}
+              stats={vendorStats.get(vendor.id)}
             />
           ))}
         </div>

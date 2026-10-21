@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { takeReturnTo } from "../../lib/returnTo";
 import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 
@@ -11,6 +12,8 @@ function CustomerSignup() {
   usePageSeo({ title: "Create account", noindex: true });
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const cameFrom = location.state?.from;
 
   const [form, setForm] = useState({
     full_name: "",
@@ -53,12 +56,13 @@ function CustomerSignup() {
     }
 
     if (data.session) {
-      navigate("/", { replace: true });
+      navigate(takeReturnTo(cameFrom) || "/", { replace: true });
       return;
     }
 
     navigate("/login", {
       state: {
+        from: cameFrom,
         message: "Account created. Please confirm your email, then log in.",
       },
     });
@@ -135,7 +139,7 @@ function CustomerSignup() {
         </form>
 
         <p className="auth-footer">
-          Already registered? <Link to="/login">Login here</Link>
+          Already registered? <Link to="/login" state={{ from: cameFrom }}>Login here</Link>
         </p>
       </div>
     </section>

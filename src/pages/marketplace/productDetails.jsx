@@ -15,10 +15,15 @@ import { useCart } from "../../context/CartContext";
 import Loader from "../../components/common/loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import OrderModal from "../../components/marketplace/OrderModal";
+import SignInToOrder from "../../components/marketplace/SignInToOrder";
+import useAuth from "../../hooks/useAuth";
 import MoreCampusFinds from "../../components/marketplace/MoreCampusFinds";
 import { formatCurrency } from "../../utils/currency";
 
 import usePageSeo from "../../hooks/usePageSeo";
+import useRatings from "../../hooks/useRatings";
+import { StarRating } from "../../components/common/Stars";
+import { trackProductView } from "../../lib/analytics";
 
 function ProductDetails() {
   const { productId } = useParams();
@@ -28,6 +33,9 @@ function ProductDetails() {
     useProducts({ autoLoad: false });
 
   const { addToCart } = useCart();
+  const { user, loading: authLoading } = useAuth();
+
+  const [signInOpen, setSignInOpen] = useState(false);
 
   const [product, setProduct] =
     useState(null);
@@ -37,8 +45,13 @@ function ProductDetails() {
 
   usePageSeo({ title: product?.name || "Product", description: product?.description || (product?.name ? `Buy ${product.name} on MAK MART, Makerere University's student marketplace.` : undefined), image: product?.image_url });
 
+  const { productStats } = useRatings();
+
   useEffect(() => {
-    getProduct(productId).then(setProduct);
+    getProduct(productId).then((result) => {
+      setProduct(result);
+      if (result?.id) trackProductView(result.id);
+    });
   }, [productId]);
 
   if (loading) {
@@ -102,6 +115,13 @@ function ProductDetails() {
 
           <h1>{product.name}</h1>
 
+          <StarRating
+            value={productStats.get(product.id)?.rating_avg}
+            count={productStats.get(product.id)?.rating_count}
+            size={18}
+            showEmpty
+          />
+
           <h2>
             {formatCurrency(product.price || 0)}
           </h2>
@@ -123,7 +143,10 @@ function ProductDetails() {
           <div className="product-details__actions">
             <button
               className="primary-button"
-              onClick={() => setOrderModalOpen(true)}
+              disabled={authLoading}
+              onClick={() =>
+                user ? setOrderModalOpen(true) : setSignInOpen(true)
+              }
             >
               <MessageCircle size={18} />
               Order on WhatsApp
@@ -140,9 +163,11 @@ function ProductDetails() {
         </div>
       </div>
 
+      <SignInToOrder isOpen={signInOpen} onClose={() => setSignInOpen(false)} />
+
       <OrderModal
         product={product}
-        isOpen={orderModalOpen}
+        isOpen={orderModalOpen && Boolean(user)}
         onClose={() => setOrderModalOpen(false)}
       />
 

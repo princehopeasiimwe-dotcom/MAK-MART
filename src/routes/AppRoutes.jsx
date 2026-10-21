@@ -35,6 +35,8 @@ const UpdatePassword = lazy(() => import("../pages/auth/UpdatePassword"));
 const VendorDashboard = lazy(() => import("../pages/vendor/VendorDashboard"));
 const VendorProducts = lazy(() => import("../pages/vendor/VendorProducts"));
 const VendorOrders = lazy(() => import("../pages/vendor/VendorOrders"));
+const VendorInsights = lazy(() => import("../pages/vendor/VendorInsights"));
+const AdminReviews = lazy(() => import("../pages/admin/AdminReviews"));
 const VendorEvents = lazy(() => import("../pages/vendor/VendorEvents"));
 const VendorProfilePage = lazy(() => import("../pages/vendor/VendorProfile"));
 
@@ -158,6 +160,11 @@ function AppRoutes() {
         />
 
         <Route
+          path="insights"
+          element={<VendorInsights />}
+        />
+
+        <Route
           path="events"
           element={<VendorEvents />}
         />
@@ -244,6 +251,11 @@ function AppRoutes() {
         <Route
           path="reports"
           element={<AdminReports />}
+        />
+
+        <Route
+          path="reviews"
+          element={<AdminReviews />}
         />
       </Route>
 

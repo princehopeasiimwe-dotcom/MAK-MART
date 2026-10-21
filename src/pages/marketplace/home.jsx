@@ -27,12 +27,19 @@ const PILLARS = [
 ];
 
 import usePageSeo from "../../hooks/usePageSeo";
+import useRatings from "../../hooks/useRatings";
+import { rankProducts } from "../../lib/ranking";
 
 function Home() {
   usePageSeo({ title: "" });
 
-  const { products: featured, loading: featuredLoading } = useProducts({ featured: true });
-  const { products: allProducts, loading: allLoading } = useProducts({});
+  const { products: featuredRaw, loading: featuredLoading } = useProducts({ featured: true });
+  const { products: allRaw, loading: allLoading } = useProducts({});
+  const { vendorStats, productStats } = useRatings();
+
+  // Best-rated vendors first.
+  const featured = useMemo(() => rankProducts(featuredRaw, vendorStats, productStats), [featuredRaw, vendorStats, productStats]);
+  const allProducts = useMemo(() => rankProducts(allRaw, vendorStats, productStats), [allRaw, vendorStats, productStats]);
   const { events, loading: eventsLoading } = useEvents({ upcomingOnly: true });
 
   const [categories, setCategories] = useState([]);

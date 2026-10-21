@@ -7,6 +7,7 @@ import {
   User,
   Store,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import NotificationBell from "../components/common/NotificationBell";
@@ -56,6 +57,11 @@ function VendorLayout() {
           <NavLink to="/vendor/orders">
             <ShoppingCart size={19} />
             Orders
+          </NavLink>
+
+          <NavLink to="/vendor/insights">
+            <BarChart3 size={19} />
+            Insights
           </NavLink>
 
           <NavLink to="/vendor/profile">

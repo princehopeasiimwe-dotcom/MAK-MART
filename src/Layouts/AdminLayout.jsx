@@ -11,6 +11,7 @@ import {
   Settings,
   Tag,
   LogOut,
+  Star,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import NotificationBell from "../components/common/NotificationBell";
@@ -73,7 +74,12 @@ function AdminLayout() {
             Reports
           </NavLink>
           
-                    <NavLink to="/admin/categories">
+                    <NavLink to="/admin/reviews">
+            <Star size={19} />
+            Reviews
+          </NavLink>
+
+          <NavLink to="/admin/categories">
             <Tag size={19} />
             Categories
           </NavLink>

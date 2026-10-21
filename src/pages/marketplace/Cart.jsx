@@ -5,6 +5,8 @@ import { Minus, Plus, Trash2, ShoppingBag, MessageCircle } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import EmptyState from "../../components/common/EmptyState";
 import CartCheckoutModal from "../../components/marketplace/CartCheckoutModal";
+import SignInToOrder from "../../components/marketplace/SignInToOrder";
+import useAuth from "../../hooks/useAuth";
 import { formatCurrency } from "../../utils/currency";
 
 import usePageSeo from "../../hooks/usePageSeo";
@@ -18,6 +20,8 @@ function Cart() {
     removeFromCart,
   } = useCart();
 
+  const { user, loading: authLoading } = useAuth();
+  const [signInOpen, setSignInOpen] = useState(false);
   const [checkoutVendorId, setCheckoutVendorId] = useState(null);
 
   const vendorGroups = useMemo(() => {
@@ -131,8 +135,12 @@ function Cart() {
             <button
               type="button"
               className="primary-button"
-              disabled={!group.vendor?.id}
-              onClick={() => setCheckoutVendorId(group.vendor?.id)}
+              disabled={!group.vendor?.id || authLoading}
+              onClick={() =>
+                user
+                  ? setCheckoutVendorId(group.vendor?.id)
+                  : setSignInOpen(true)
+              }
             >
               <MessageCircle size={17} />
               Order from {group.vendor?.business_name || "this vendor"}
@@ -141,8 +149,10 @@ function Cart() {
         );
       })}
 
+      <SignInToOrder isOpen={signInOpen} onClose={() => setSignInOpen(false)} />
+
       <CartCheckoutModal
-        vendor={activeGroup?.vendor}
+        vendor={user ? activeGroup?.vendor : null}
         items={activeGroup?.items || []}
         isOpen={Boolean(activeGroup)}
         onClose={() => setCheckoutVendorId(null)}

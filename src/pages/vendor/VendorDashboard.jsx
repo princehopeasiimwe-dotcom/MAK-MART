@@ -8,6 +8,7 @@ import {
 
 import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
+import { Link } from "react-router-dom";
 import WhatsAppGroupCard from "../../components/common/WhatsAppGroupCard";
 
 function VendorDashboard() {
@@ -96,6 +97,10 @@ function VendorDashboard() {
       )}
 
       <WhatsAppGroupCard approved={Boolean(vendor?.is_active)} />
+
+      <Link to="/vendor/insights" className="insights-card insights-link">
+        See who is viewing your products and how buyers rate you →
+      </Link>
 
       <div className="stats-grid">
         <div className="stat-card">

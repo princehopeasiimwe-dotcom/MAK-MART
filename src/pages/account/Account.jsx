@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, LogOut, Package, ShieldCheck } from "lucide-react";
+import { CheckCircle2, LayoutDashboard, LogOut, Package, ShieldCheck, Star } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import { formatCurrency } from "../../utils/currency";
 
 import usePageSeo from "../../hooks/usePageSeo";
+import RatingService from "../../services/ratingService";
+import OrderReviewModal from "../../components/account/OrderReviewModal";
 
 function Account() {
   usePageSeo({ title: "Your account", noindex: true });
@@ -16,21 +18,42 @@ function Account() {
 
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [reviewing, setReviewing] = useState(null);
+  const [busyId, setBusyId] = useState(null);
+  const [orderError, setOrderError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const userId = user?.id;
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!userId) return;
 
     let active = true;
     setOrdersLoading(true);
 
+    const columns =
+      "id, total_amount, status, created_at, delivery_confirmed_at, vendors ( business_name ), order_items ( product_id, product_name, quantity ), order_reviews ( status, vendor_rating )";
+
     supabase
       .from("orders")
-      .select("id, total_amount, status, created_at, order_items ( product_name, quantity )")
-      .eq("buyer_id", user.id)
+      .select(columns)
+      .eq("buyer_id", userId)
       .order("created_at", { ascending: false })
       .limit(20)
-      .then(({ data }) => {
-        if (active) setOrders(data || []);
+      .then(async ({ data, error }) => {
+        if (!active) return;
+        if (!error) {
+          setOrders(data || []);
+          return;
+        }
+        // Older database (migrations 017 not run yet): keep the plain list.
+        const fallback = await supabase
+          .from("orders")
+          .select("id, total_amount, status, created_at, order_items ( product_name, quantity )")
+          .eq("buyer_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(20);
+        if (active) setOrders(fallback.data || []);
       })
       .finally(() => {
         if (active) setOrdersLoading(false);
@@ -39,7 +62,21 @@ function Account() {
     return () => {
       active = false;
     };
-  }, [user?.id]);
+  }, [userId, reloadKey]);
+
+  const handleConfirm = async (order) => {
+    setOrderError("");
+    setBusyId(order.id);
+    try {
+      await RatingService.confirmDelivery(order.id);
+      setReloadKey((k) => k + 1);
+      setReviewing({ ...order, delivery_confirmed_at: new Date().toISOString() });
+    } catch (err) {
+      setOrderError(err.message || "Could not confirm delivery. Please try again.");
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   if (loading) {
     return <section className="mm-account mm-container"><p className="mm-empty">Loading...</p></section>;
@@ -102,6 +139,8 @@ function Account() {
       <div className="mm-panel">
         <h2><Package size={20} /> My orders</h2>
 
+        {orderError && <div className="form-error">{orderError}</div>}
+
         {ordersLoading ? (
           <p className="mm-empty">Loading your orders...</p>
         ) : orders.length === 0 ? (
@@ -110,7 +149,11 @@ function Account() {
           </p>
         ) : (
           <ul className="mm-orders">
-            {orders.map((order) => (
+            {orders.map((order) => {
+              const review = Array.isArray(order.order_reviews)
+                ? order.order_reviews[0]
+                : order.order_reviews;
+              return (
               <li key={order.id}>
                 <div>
                   <strong>
@@ -124,11 +167,61 @@ function Account() {
                   <span>{formatCurrency(order.total_amount)}</span>
                   <em className={`mm-status mm-status--${order.status}`}>{order.status}</em>
                 </div>
+
+                {order.status !== "cancelled" && order.vendors && (
+                  <div className="mm-orders__action">
+                    {!order.delivery_confirmed_at ? (
+                      <>
+                        <span>Got your order from {order.vendors.business_name}?</span>
+                        <button
+                          type="button"
+                          className="mm-btn mm-btn--primary mm-btn--sm"
+                          disabled={busyId === order.id}
+                          onClick={() => handleConfirm(order)}
+                        >
+                          <CheckCircle2 size={16} />
+                          {busyId === order.id ? "Saving..." : "I received it"}
+                        </button>
+                      </>
+                    ) : review ? (
+                      <span className="mm-orders__done">
+                        <CheckCircle2 size={16} /> Delivered · you rated {review.vendor_rating}
+                        <Star size={14} fill="currentColor" />
+                        {review.status === "pending" && " (awaiting approval)"}
+                      </span>
+                    ) : (
+                      <>
+                        <span className="mm-orders__done">
+                          <CheckCircle2 size={16} /> Delivered
+                        </span>
+                        <button
+                          type="button"
+                          className="mm-btn mm-btn--outline mm-btn--sm"
+                          onClick={() => setReviewing(order)}
+                        >
+                          <Star size={16} /> Rate this order
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </div>
+
+      {reviewing && (
+        <OrderReviewModal
+          order={reviewing}
+          onClose={() => setReviewing(null)}
+          onDone={() => {
+            setReviewing(null);
+            setReloadKey((k) => k + 1);
+          }}
+        />
+      )}
     </section>
   );
 }
