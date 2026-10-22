@@ -1576,3 +1576,9 @@
 @media (max-width: 599px) {
   .mm-brand__mark { height: 42px; }
 }
+
+/* Account + cart live in the bottom tab bar on phones, so the top bar only
+   shows them on wide screens (where the tab bar is hidden). */
+@media (max-width: 899px) {
+  .mm-header__wide-only { display: none !important; }
+}
