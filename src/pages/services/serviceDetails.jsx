@@ -1,11 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
 
 import ServiceCard from "../../components/services/ServiceCard";
 import useService from "../../hooks/useService";
 import { formatCurrency } from "../../utils/currency";
-import { openWhatsApp } from "../../lib/whatsapp";
+import useAuth from "../../hooks/useAuth";
+import useRatings from "../../hooks/useRatings";
+import { StarRating } from "../../components/common/Stars";
+import SignInToOrder from "../../components/marketplace/SignInToOrder";
+import ServiceRequestModal from "../../components/services/ServiceRequestModal";
+import { trackServiceView } from "../../lib/analytics";
 
 import usePageSeo from "../../hooks/usePageSeo";
 
@@ -13,10 +18,17 @@ function ServiceDetails() {
   const { serviceId } = useParams();
   const { service, loading, error, fetchService } = useService(serviceId);
 
+  const { user, loading: authLoading } = useAuth();
+  const { serviceStats, providerStats } = useRatings();
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [requestOpen, setRequestOpen] = useState(false);
+
   usePageSeo({ title: service?.name || "Service", description: service?.description, image: service?.image_url });
 
   useEffect(() => {
-    fetchService(serviceId);
+    fetchService(serviceId).then((result) => {
+      if (result?.id) trackServiceView(result.id);
+    });
   }, [fetchService, serviceId]);
 
   if (loading) return <main className="page-container"><p>Loading service...</p></main>;
@@ -28,11 +40,8 @@ function ServiceDetails() {
 
   const handleContact = () => {
     if (!providerPhone) return;
-
-    openWhatsApp(
-      providerPhone,
-      `Hi ${provider.business_name}, I found "${service.name}" on MAK MART and I'd like to know more.`
-    );
+    if (user) setRequestOpen(true);
+    else setSignInOpen(true);
   };
 
   return (
@@ -52,6 +61,13 @@ function ServiceDetails() {
             </p>
           )}
 
+          <StarRating
+            value={serviceStats.get(service.id)?.rating_avg ?? providerStats.get(service.provider_id)?.rating_avg}
+            count={serviceStats.get(service.id)?.rating_count ?? providerStats.get(service.provider_id)?.rating_count}
+            size={18}
+            showEmpty
+          />
+
           {service.price != null && (
             <p className="service-details__price">
               {formatCurrency(service.price)}
@@ -64,14 +80,23 @@ function ServiceDetails() {
             <button
               type="button"
               className="primary-button"
+              disabled={authLoading}
               onClick={handleContact}
             >
               <MessageCircle size={18} />
-              Contact on WhatsApp
+              Request this service
             </button>
           )}
         </div>
       </div>
+
+      <SignInToOrder isOpen={signInOpen} onClose={() => setSignInOpen(false)} />
+      <ServiceRequestModal
+        service={service}
+        provider={provider}
+        isOpen={requestOpen && Boolean(user)}
+        onClose={() => setRequestOpen(false)}
+      />
     </main>
   );
 }

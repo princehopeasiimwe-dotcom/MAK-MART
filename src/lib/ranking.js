@@ -29,3 +29,13 @@ export function rankProducts(products, vendorStats, productStats) {
     return vendorScore * 10 + productScore;
   });
 }
+
+// Services: the provider's reputation counts most, the service's own rating breaks ties.
+export function rankServices(services, providerStats, serviceStats) {
+  if (!providerStats?.size && !serviceStats?.size) return services;
+  return stable(services || [], (s) => {
+    const providerScore = Number(providerStats?.get(s.provider_id)?.rank_score ?? 0);
+    const serviceScore = Number(serviceStats?.get(s.id)?.rank_score ?? 0);
+    return providerScore * 10 + serviceScore;
+  });
+}

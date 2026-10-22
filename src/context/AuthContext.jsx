@@ -56,7 +56,8 @@ export function AuthProvider({ children }) {
       setVendor(null);
     }
 
-    if (profileRow?.role === "service_provider") {
+    // Vendors can offer services too, so they may have a provider profile as well.
+    if (profileRow?.role === "service_provider" || profileRow?.role === "vendor") {
       const { data: providerRow } = await supabase
         .from("service_providers")
         .select("*")

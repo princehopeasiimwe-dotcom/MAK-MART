@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, LayoutDashboard, LogOut, Package, ShieldCheck, Star } from "lucide-react";
+import { CheckCircle2, LayoutDashboard, LogOut, Package, ShieldCheck, Star, Wrench } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import { formatCurrency } from "../../utils/currency";
@@ -8,6 +8,7 @@ import { formatCurrency } from "../../utils/currency";
 import usePageSeo from "../../hooks/usePageSeo";
 import RatingService from "../../services/ratingService";
 import OrderReviewModal from "../../components/account/OrderReviewModal";
+import ServiceReviewModal from "../../components/account/ServiceReviewModal";
 
 function Account() {
   usePageSeo({ title: "Your account", noindex: true });
@@ -22,6 +23,9 @@ function Account() {
   const [busyId, setBusyId] = useState(null);
   const [orderError, setOrderError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [requests, setRequests] = useState([]);
+  const [reviewingRequest, setReviewingRequest] = useState(null);
+  const [busyRequestId, setBusyRequestId] = useState(null);
 
   const userId = user?.id;
 
@@ -63,6 +67,38 @@ function Account() {
       active = false;
     };
   }, [userId, reloadKey]);
+
+  // Service requests (a missing table just means the update hasn't been run yet).
+  useEffect(() => {
+    if (!userId) return;
+    let active = true;
+    supabase
+      .from("service_requests")
+      .select("id, service_name, status, created_at, delivery_confirmed_at, service_providers ( business_name ), service_reviews ( status, rating )")
+      .eq("buyer_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .then(({ data, error }) => {
+        if (active && !error) setRequests(data || []);
+      });
+    return () => {
+      active = false;
+    };
+  }, [userId, reloadKey]);
+
+  const handleConfirmService = async (request) => {
+    setOrderError("");
+    setBusyRequestId(request.id);
+    try {
+      await RatingService.confirmServiceDone(request.id);
+      setReloadKey((k) => k + 1);
+      setReviewingRequest({ ...request, delivery_confirmed_at: new Date().toISOString() });
+    } catch (err) {
+      setOrderError(err.message || "Could not confirm. Please try again.");
+    } finally {
+      setBusyRequestId(null);
+    }
+  };
 
   const handleConfirm = async (order) => {
     setOrderError("");
@@ -211,6 +247,84 @@ function Account() {
           </ul>
         )}
       </div>
+
+      {requests.length > 0 && (
+        <div className="mm-panel">
+          <h2><Wrench size={20} /> My service requests</h2>
+          <ul className="mm-orders">
+            {requests.map((request) => {
+              const review = Array.isArray(request.service_reviews)
+                ? request.service_reviews[0]
+                : request.service_reviews;
+              return (
+                <li key={request.id}>
+                  <div>
+                    <strong>{request.service_name}</strong>
+                    <small>
+                      {request.service_providers?.business_name} ·{" "}
+                      {new Date(request.created_at).toLocaleDateString()}
+                    </small>
+                  </div>
+                  <div className="mm-orders__side">
+                    <em className={`mm-status mm-status--${request.status === "accepted" ? "confirmed" : request.status}`}>
+                      {request.status}
+                    </em>
+                  </div>
+
+                  {request.status !== "cancelled" && (
+                    <div className="mm-orders__action">
+                      {!request.delivery_confirmed_at ? (
+                        <>
+                          <span>Was the service done?</span>
+                          <button
+                            type="button"
+                            className="mm-btn mm-btn--primary mm-btn--sm"
+                            disabled={busyRequestId === request.id}
+                            onClick={() => handleConfirmService(request)}
+                          >
+                            <CheckCircle2 size={16} />
+                            {busyRequestId === request.id ? "Saving..." : "Yes, it was done"}
+                          </button>
+                        </>
+                      ) : review ? (
+                        <span className="mm-orders__done">
+                          <CheckCircle2 size={16} /> Done · you rated {review.rating}
+                          <Star size={14} fill="currentColor" />
+                          {review.status === "pending" && " (awaiting approval)"}
+                        </span>
+                      ) : (
+                        <>
+                          <span className="mm-orders__done">
+                            <CheckCircle2 size={16} /> Done
+                          </span>
+                          <button
+                            type="button"
+                            className="mm-btn mm-btn--outline mm-btn--sm"
+                            onClick={() => setReviewingRequest(request)}
+                          >
+                            <Star size={16} /> Rate this service
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      {reviewingRequest && (
+        <ServiceReviewModal
+          request={reviewingRequest}
+          onClose={() => setReviewingRequest(null)}
+          onDone={() => {
+            setReviewingRequest(null);
+            setReloadKey((k) => k + 1);
+          }}
+        />
+      )}
 
       {reviewing && (
         <OrderReviewModal

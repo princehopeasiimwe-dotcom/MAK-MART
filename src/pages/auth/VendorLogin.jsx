@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import PasswordField from "../../components/common/PasswordField";
 import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 import { getHomePathForUser } from "../../lib/authRedirect";
@@ -9,6 +10,7 @@ import { getHomePathForUser } from "../../lib/authRedirect";
 // /provider/login. After signing in, each user is sent to their
 // own dashboard (or back to the page they came from).
 import usePageSeo from "../../hooks/usePageSeo";
+import { takeReturnTo } from "../../lib/returnTo";
 
 function VendorLogin() {
   usePageSeo({ title: "Login", noindex: true });
@@ -37,7 +39,7 @@ function VendorLogin() {
     }
 
     const homePath = await getHomePathForUser(data.user.id);
-    const from = location.state?.from;
+    const from = takeReturnTo(location.state?.from);
 
     setLoading(false);
     navigate(from && from !== "/login" ? from : homePath, {
@@ -78,11 +80,11 @@ function VendorLogin() {
           <div className="form-group">
             <label htmlFor="login-password">Password</label>
 
-            <input
+            <PasswordField
               id="login-password"
-              type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
               required
             />
           </div>

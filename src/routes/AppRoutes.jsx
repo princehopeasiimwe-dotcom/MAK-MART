@@ -35,6 +35,8 @@ const UpdatePassword = lazy(() => import("../pages/auth/UpdatePassword"));
 const VendorDashboard = lazy(() => import("../pages/vendor/VendorDashboard"));
 const VendorProducts = lazy(() => import("../pages/vendor/VendorProducts"));
 const VendorOrders = lazy(() => import("../pages/vendor/VendorOrders"));
+const ProviderRequests = lazy(() => import("../pages/provider/ProviderRequests"));
+const ProviderInsights = lazy(() => import("../pages/provider/ProviderInsights"));
 const VendorInsights = lazy(() => import("../pages/vendor/VendorInsights"));
 const AdminReviews = lazy(() => import("../pages/admin/AdminReviews"));
 const VendorEvents = lazy(() => import("../pages/vendor/VendorEvents"));
@@ -182,7 +184,7 @@ function AppRoutes() {
       <Route
         path="/provider"
         element={
-          <ProtectedRoute allowedRoles={["service_provider", "admin"]}>
+          <ProtectedRoute allowedRoles={["service_provider", "vendor", "admin"]}>
             <ProviderLayout />
           </ProtectedRoute>
         }
@@ -190,6 +192,8 @@ function AppRoutes() {
         <Route index element={<Navigate to="/provider/dashboard" replace />} />
         <Route path="dashboard" element={<ProviderDashboard />} />
         <Route path="services" element={<ProviderServices />} />
+        <Route path="requests" element={<ProviderRequests />} />
+        <Route path="insights" element={<ProviderInsights />} />
         <Route path="profile" element={<ProviderAccount />} />
       </Route>
 

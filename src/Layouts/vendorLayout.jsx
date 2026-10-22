@@ -8,6 +8,7 @@ import {
   Store,
   LogOut,
   BarChart3,
+  Wrench,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import NotificationBell from "../components/common/NotificationBell";
@@ -57,6 +58,11 @@ function VendorLayout() {
           <NavLink to="/vendor/orders">
             <ShoppingCart size={19} />
             Orders
+          </NavLink>
+
+          <NavLink to="/provider/services">
+            <Wrench size={19} />
+            My services
           </NavLink>
 
           <NavLink to="/vendor/insights">

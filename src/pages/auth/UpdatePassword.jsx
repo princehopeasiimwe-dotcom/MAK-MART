@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import PasswordField from "../../components/common/PasswordField";
 import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 
 // Landing page for the link in the password-reset email.
 // Supabase signs the user in with a temporary recovery session
 // when they arrive here; this form then sets the new password.
+import usePageSeo from "../../hooks/usePageSeo";
+
 function UpdatePassword() {
+  usePageSeo({ title: "Set new password", noindex: true });
+
   const navigate = useNavigate();
 
   const [ready, setReady] = useState(false);
@@ -102,24 +107,24 @@ function UpdatePassword() {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="new-password">New password</label>
-                <input
+                <PasswordField
                   id="new-password"
-                  type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   minLength="8"
+                  autoComplete="new-password"
                   required
                 />
               </div>
 
               <div className="form-group">
                 <label htmlFor="confirm-password">Confirm password</label>
-                <input
+                <PasswordField
                   id="confirm-password"
-                  type="password"
                   value={confirm}
                   onChange={(event) => setConfirm(event.target.value)}
                   minLength="8"
+                  autoComplete="new-password"
                   required
                 />
               </div>

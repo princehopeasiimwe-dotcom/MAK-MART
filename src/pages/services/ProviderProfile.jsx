@@ -5,12 +5,20 @@ import { MessageCircle, MapPin, Phone, BriefcaseBusiness } from "lucide-react";
 import ServiceService from "../../services/services";
 import ServiceCard from "../../components/services/ServiceCard";
 import { createWhatsAppLink } from "../../lib/whatsapp";
+import useAuth from "../../hooks/useAuth";
+import useRatings from "../../hooks/useRatings";
+import { StarRating } from "../../components/common/Stars";
+import { rankServices } from "../../lib/ranking";
+import SignInToOrder from "../../components/marketplace/SignInToOrder";
 
 import usePageSeo from "../../hooks/usePageSeo";
 
 function ProviderProfile() {
   const { providerId } = useParams();
 
+  const { user } = useAuth();
+  const { providerStats, serviceStats } = useRatings();
+  const [signInOpen, setSignInOpen] = useState(false);
   const [provider, setProvider] = useState(null);
   usePageSeo({ title: provider?.business_name || "Service provider", description: provider?.description, image: provider?.profile_image_url });
 
@@ -96,6 +104,13 @@ function ProviderProfile() {
         <span className="eyebrow">SERVICE PROVIDER</span>
         <h1>{businessName}</h1>
 
+        <StarRating
+          value={providerStats.get(provider.id)?.rating_avg}
+          count={providerStats.get(provider.id)?.rating_count}
+          size={18}
+          showEmpty
+        />
+
         <p className="service-card__meta">
           <MapPin size={16} />
           {provider.location || "Makerere University"}
@@ -109,7 +124,7 @@ function ProviderProfile() {
       )}
 
       <div className="product-card-actions">
-        {whatsappLink && (
+        {whatsappLink && user && (
           <a
             href={whatsappLink}
             target="_blank"
@@ -120,7 +135,13 @@ function ProviderProfile() {
           </a>
         )}
 
-        {provider.phone && (
+        {whatsappLink && !user && (
+          <button type="button" className="primary-button" onClick={() => setSignInOpen(true)}>
+            <MessageCircle size={18} /> WhatsApp
+          </button>
+        )}
+
+        {user && provider.phone && (
           <a href={`tel:${provider.phone}`} className="product-view-button">
             <Phone size={16} /> {provider.phone}
           </a>
@@ -144,12 +165,14 @@ function ProviderProfile() {
           </div>
 
           <div className="services-grid">
-            {services.map((service) => (
+            {rankServices(services, providerStats, serviceStats).map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </div>
         </>
       )}
+
+      <SignInToOrder isOpen={signInOpen} onClose={() => setSignInOpen(false)} />
     </main>
   );
 }

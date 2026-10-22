@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import SettingsService from "../../services/settingsService";
 import useAuth from "../../hooks/useAuth";
 import useProducts from "../../hooks/useProducts";
 
@@ -25,6 +26,17 @@ function VendorProducts() {
 
   const [selectedProduct, setSelectedProduct] =
     useState(null);
+
+  const [limit, setLimit] = useState(0);
+
+  useEffect(() => {
+    SettingsService.getSetting("max_products_per_vendor")
+      .then((value) => {
+        const n = parseInt(value, 10);
+        setLimit(Number.isFinite(n) && n > 0 ? n : value === "" ? 4 : 0);
+      })
+      .catch(() => setLimit(0));
+  }, []);
 
   const handleAdd = () => {
     setSelectedProduct(null);
@@ -55,8 +67,10 @@ function VendorProducts() {
       );
     }
 
-    // "Save & add another" keeps the window open for the next product
-    if (!addAnother) {
+    // "Save & add another" keeps the window open for the next product,
+    // unless that was the last free slot.
+    const full = !selectedProduct && limit > 0 && products.length + 1 >= limit;
+    if (!addAnother || full) {
       setModalOpen(false);
     }
   };
@@ -91,6 +105,7 @@ function VendorProducts() {
         onAdd={handleAdd}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        limit={limit}
       />
 
       <Modal

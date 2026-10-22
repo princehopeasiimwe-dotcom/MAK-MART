@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import ServiceCard from "../../components/services/ServiceCard";
 import useService from "../../hooks/useService";
+import useRatings from "../../hooks/useRatings";
+import { rankServices } from "../../lib/ranking";
 
 import usePageSeo from "../../hooks/usePageSeo";
 
@@ -8,6 +10,8 @@ function Services() {
   usePageSeo({ title: "Campus services", description: "Find student-run services around Makerere University: tutoring, printing, hair, repairs and more." });
 
 	const { services, loading, error, fetchServices } = useService();
+
+	const { providerStats, serviceStats } = useRatings();
 
 	useEffect(() => {
 		fetchServices();
@@ -31,7 +35,7 @@ function Services() {
 			)}
 			{!loading && !error && services.length > 0 && (
 				<div className="services-grid">
-					{services.map((service) => (
+					{rankServices(services, providerStats, serviceStats).map((service) => (
 						<ServiceCard key={service.id} service={service} />
 					))}
 				</div>

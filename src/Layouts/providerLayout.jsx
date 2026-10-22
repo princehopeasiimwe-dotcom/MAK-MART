@@ -2,15 +2,19 @@ import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Wrench,
+  Inbox,
+  BarChart3,
+  ArrowLeft,
   User,
   Store,
   LogOut,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import NotificationBell from "../components/common/NotificationBell";
+import OfferServiceCard from "../components/vendor/OfferServiceCard";
 
 function ProviderLayout() {
-  const { serviceProvider, signOut } = useAuth();
+  const { serviceProvider, signOut, isVendor, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const providerName =
@@ -46,11 +50,28 @@ function ProviderLayout() {
             Services
           </NavLink>
 
+          <NavLink to="/provider/requests">
+            <Inbox size={19} />
+            Requests
+          </NavLink>
+
+          <NavLink to="/provider/insights">
+            <BarChart3 size={19} />
+            Insights
+          </NavLink>
+
           <NavLink to="/provider/profile">
             <User size={19} />
             Profile
           </NavLink>
         </nav>
+
+        {isVendor && (
+          <Link to="/vendor/dashboard" className="dashboard-sidebar__signout dashboard-sidebar__home">
+            <ArrowLeft size={18} />
+            Back to my store
+          </Link>
+        )}
 
         <Link to="/" className="dashboard-sidebar__signout dashboard-sidebar__home">
           <Store size={18} />
@@ -72,7 +93,7 @@ function ProviderLayout() {
           <NotificationBell />
         </div>
 
-        <Outlet />
+        {serviceProvider || isAdmin ? <Outlet /> : <OfferServiceCard />}
       </main>
     </div>
   );

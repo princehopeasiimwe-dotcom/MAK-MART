@@ -4,6 +4,7 @@ import SettingsService from "../../services/settingsService";
 function AdminSettings() {
   const [groupLink, setGroupLink] = useState("");
   const [digestMin, setDigestMin] = useState("10");
+  const [maxProducts, setMaxProducts] = useState("4");
   const [requireApproval, setRequireApproval] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -15,8 +16,10 @@ function AdminSettings() {
       SettingsService.getSetting("vendor_whatsapp_group_link"),
       SettingsService.getSetting("digest_min_views"),
       SettingsService.getSetting("reviews_require_approval"),
+      SettingsService.getSetting("max_products_per_vendor"),
     ])
-      .then(([link, min, approval]) => {
+      .then(([link, min, approval, maxP]) => {
+        if (maxP !== "") setMaxProducts(maxP);
         setGroupLink(link);
         if (min) setDigestMin(min);
         setRequireApproval(approval !== "false");
@@ -38,6 +41,9 @@ function AdminSettings() {
       const min = Math.max(1, parseInt(digestMin, 10) || 10);
       await SettingsService.updateSetting("digest_min_views", String(min));
       setDigestMin(String(min));
+      const maxP = Math.max(0, parseInt(maxProducts, 10) || 0);
+      await SettingsService.updateSetting("max_products_per_vendor", String(maxP));
+      setMaxProducts(String(maxP));
       await SettingsService.updateSetting(
         "reviews_require_approval",
         requireApproval ? "true" : "false"
@@ -84,6 +90,21 @@ function AdminSettings() {
               Sent automatically to vendors and service providers the
               moment they're approved. Create the group in WhatsApp,
               then paste its invite link here (Group info → Invite via link).
+            </p>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="max-products">Products each vendor may list</label>
+            <input
+              id="max-products"
+              type="number"
+              min="0"
+              value={maxProducts}
+              onChange={(event) => setMaxProducts(event.target.value)}
+            />
+            <p className="field-hint">
+              Default 4. Enter 0 for no limit. Vendors already above the limit keep their products
+              but can't add more until they're under it.
             </p>
           </div>
 

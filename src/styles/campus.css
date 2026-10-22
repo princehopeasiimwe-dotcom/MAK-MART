@@ -1435,3 +1435,27 @@
 .insights-link { display: block; margin: 0 0 18px; font-weight: 600; color: #15352a; text-decoration: none; }
 .signin-to-order { display: grid; gap: 12px; }
 .signin-to-order p { margin: 0; line-height: 1.5; }
+
+/* show-password eye */
+.password-field { position: relative; }
+.password-field input { padding-right: 46px !important; width: 100%; }
+.password-field__toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: #6b6560;
+  cursor: pointer;
+}
+.password-field__toggle:hover { color: #15352a; background: rgba(0,0,0,.05); }
+.product-limit { margin: 0 0 14px; color: #6b6560; font-size: 14px; }
+.product-limit.is-full { color: #b4412f; font-weight: 600; }
+.offer-service { margin: 0 0 18px; }
+.offer-service p { margin: 0 0 12px; line-height: 1.5; }

@@ -50,3 +50,12 @@ export function trackProductView(productId) {
     `product:${productId}`
   );
 }
+
+export function trackServiceView(serviceId) {
+  if (!serviceId) return;
+  fire(
+    "track_service_view",
+    { p_visitor: getVisitorId(), p_service: serviceId },
+    `service:${serviceId}`
+  );
+}

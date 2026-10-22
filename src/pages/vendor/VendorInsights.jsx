@@ -17,11 +17,14 @@ function formatDay(day) {
   return new Date(`${day}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-function VendorInsights() {
+// kind="vendor" shows product views; kind="provider" shows service views.
+function VendorInsights({ kind = "vendor" }) {
   usePageSeo({ title: "Insights", noindex: true });
 
-  const { vendor } = useAuth();
-  const vendorId = vendor?.id;
+  const isProvider = kind === "provider";
+  const { vendor, serviceProvider } = useAuth();
+  const vendorId = isProvider ? serviceProvider?.id : vendor?.id;
+  const thing = isProvider ? "services" : "products";
 
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
@@ -41,7 +44,7 @@ function VendorInsights() {
       // Close off any finished days first (a no-op if already done).
       await supabase.rpc("generate_missing_reports").then(() => {}, () => {});
 
-      const { data: insights, error: insightsError } = await supabase.rpc("vendor_insights", {
+      const { data: insights, error: insightsError } = await supabase.rpc(isProvider ? "provider_insights" : "vendor_insights", {
         p_days: days,
       });
       if (insightsError) throw insightsError;
@@ -65,33 +68,32 @@ function VendorInsights() {
     return () => {
       active = false;
     };
-  }, [vendorId, days]);
+  }, [vendorId, days, isProvider]);
 
   useEffect(() => {
     if (!vendorId) return undefined;
     let active = true;
 
-    RatingService.getVendorStats()
+    (isProvider ? RatingService.getProviderStats() : RatingService.getVendorStats())
       .then((rows) => {
-        if (active) setRating(rows.find((row) => row.vendor_id === vendorId) || null);
+        if (active) setRating(rows.find((row) => (row.provider_id || row.vendor_id) === vendorId) || null);
       })
       .catch(() => {});
 
-    supabase
-      .from("order_reviews")
-      .select("id, vendor_rating, comment, created_at")
-      .eq("vendor_id", vendorId)
+    (isProvider
+      ? supabase.from("service_reviews").select("id, rating, comment, created_at").eq("provider_id", vendorId)
+      : supabase.from("order_reviews").select("id, vendor_rating, comment, created_at").eq("vendor_id", vendorId))
       .eq("status", "approved")
       .order("created_at", { ascending: false })
       .limit(10)
       .then(({ data: rows }) => {
-        if (active) setReviews(rows || []);
+        if (active) setReviews((rows || []).map((r) => ({ ...r, vendor_rating: r.vendor_rating ?? r.rating })));
       });
 
     return () => {
       active = false;
     };
-  }, [vendorId]);
+  }, [vendorId, isProvider]);
 
   const daily = data?.daily || [];
   const maxViews = Math.max(1, ...daily.map((d) => d.views));
@@ -102,9 +104,9 @@ function VendorInsights() {
     <section className="dashboard-page">
       <div className="page-header">
         <span className="eyebrow">INSIGHTS</span>
-        <h1>Who is looking at your products</h1>
+        <h1>Who is looking at your {thing}</h1>
         <p>
-          Counts are people who opened one of your product pages. Each person is
+          Counts are people who opened one of your {isProvider ? "service" : "product"} pages. Each person is
           counted once per product per day.
         </p>
       </div>
@@ -140,12 +142,12 @@ function VendorInsights() {
             </div>
             <div className="stat-card">
               <ShoppingCart size={24} />
-              <span>Orders in app</span>
+              <span>{isProvider ? "Requests in app" : "Orders in app"}</span>
               <strong>{data.period_orders}</strong>
             </div>
             <div className="stat-card">
               <PackageCheck size={24} />
-              <span>Delivered (confirmed)</span>
+              <span>{isProvider ? "Done (confirmed)" : "Delivered (confirmed)"}</span>
               <strong>{data.period_delivered}</strong>
             </div>
           </div>
@@ -167,7 +169,7 @@ function VendorInsights() {
           </div>
 
           <div className="insights-card">
-            <h2>Most viewed products</h2>
+            <h2>Most viewed {thing}</h2>
             {top.length === 0 ? (
               <p className="field-hint">Nothing viewed yet. Good photos and clear prices help.</p>
             ) : (
@@ -190,12 +192,12 @@ function VendorInsights() {
         {rating?.rating_count ? (
           <p>
             <StarRating value={rating.rating_avg} count={rating.rating_count} size={20} />{" "}
-            from buyers who confirmed delivery. Higher-rated vendors are shown first in the marketplace.
+            from customers who confirmed. Higher-rated {isProvider ? "providers" : "vendors"} are shown first.
           </p>
         ) : (
           <p className="field-hint">
             No ratings yet. After a buyer confirms delivery in the app they can rate you. Higher-rated
-            vendors are shown first in the marketplace.
+            providers and vendors are shown first in the marketplace.
           </p>
         )}
 

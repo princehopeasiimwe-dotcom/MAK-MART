@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { takeReturnTo } from "../../lib/returnTo";
+import PasswordField from "../../components/common/PasswordField";
 import AuthBack from "../../components/common/AuthBack";
 import { supabase } from "../../lib/supabase";
 
@@ -118,13 +119,13 @@ function CustomerSignup() {
 
           <div className="form-group">
             <label htmlFor="cs-password">Password</label>
-            <input
+            <PasswordField
               id="cs-password"
               name="password"
-              type="password"
               value={form.password}
               onChange={handleChange}
               minLength="8"
+              autoComplete="new-password"
               required
             />
           </div>

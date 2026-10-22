@@ -9,6 +9,7 @@ import {
 import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import { Link } from "react-router-dom";
+import OfferServiceCard from "../../components/vendor/OfferServiceCard";
 import WhatsAppGroupCard from "../../components/common/WhatsAppGroupCard";
 
 function VendorDashboard() {
@@ -101,6 +102,8 @@ function VendorDashboard() {
       <Link to="/vendor/insights" className="insights-card insights-link">
         See who is viewing your products and how buyers rate you →
       </Link>
+
+      <OfferServiceCard />
 
       <div className="stats-grid">
         <div className="stat-card">

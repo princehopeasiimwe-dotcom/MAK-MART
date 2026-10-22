@@ -2,21 +2,41 @@ import { useEffect, useState } from "react";
 import RatingService from "../services/ratingService";
 import { indexBy } from "../lib/ranking";
 
+const EMPTY = {
+  vendors: new Map(),
+  products: new Map(),
+  providers: new Map(),
+  services: new Map(),
+};
+
 // Ratings change slowly, so every page shares one fetch per minute.
 let cache = null;
 let cacheTime = 0;
 let inflight = null;
 
+// Each list is fetched on its own, so if one migration hasn't been run
+// yet the other ratings still work and the site keeps its normal order.
+const safe = (promise) => promise.catch(() => []);
+
 function load() {
   if (cache && Date.now() - cacheTime < 60_000) return Promise.resolve(cache);
   if (!inflight) {
-    inflight = Promise.all([RatingService.getVendorStats(), RatingService.getProductStats()])
-      .then(([vendors, products]) => {
-        cache = { vendors: indexBy(vendors, "vendor_id"), products: indexBy(products, "product_id") };
+    inflight = Promise.all([
+      safe(RatingService.getVendorStats()),
+      safe(RatingService.getProductStats()),
+      safe(RatingService.getProviderStats()),
+      safe(RatingService.getServiceStats()),
+    ])
+      .then(([vendors, products, providers, services]) => {
+        cache = {
+          vendors: indexBy(vendors, "vendor_id"),
+          products: indexBy(products, "product_id"),
+          providers: indexBy(providers, "provider_id"),
+          services: indexBy(services, "service_id"),
+        };
         cacheTime = Date.now();
         return cache;
       })
-      .catch(() => ({ vendors: new Map(), products: new Map() }))
       .finally(() => {
         inflight = null;
       });
@@ -28,13 +48,9 @@ export function invalidateRatings() {
   cache = null;
 }
 
-// Returns { vendorStats, productStats } as Maps (empty until loaded or if
-// the ratings migration hasn't been run yet - the site just keeps its
-// normal order in that case).
+// Returns Maps keyed by id: vendorStats, productStats, providerStats, serviceStats.
 export default function useRatings() {
-  const [state, setState] = useState(
-    cache || { vendors: new Map(), products: new Map() }
-  );
+  const [state, setState] = useState(cache || EMPTY);
 
   useEffect(() => {
     let active = true;
@@ -46,5 +62,10 @@ export default function useRatings() {
     };
   }, []);
 
-  return { vendorStats: state.vendors, productStats: state.products };
+  return {
+    vendorStats: state.vendors,
+    productStats: state.products,
+    providerStats: state.providers,
+    serviceStats: state.services,
+  };
 }

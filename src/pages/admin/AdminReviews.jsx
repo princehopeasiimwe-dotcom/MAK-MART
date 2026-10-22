@@ -17,6 +17,7 @@ function Stars({ n }) {
 
 function AdminReviews() {
   const [filter, setFilter] = useState("pending");
+  const [kind, setKind] = useState("products"); // "products" | "services"
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,13 +28,22 @@ function AdminReviews() {
     setLoading(true);
     setError("");
     try {
-      setReviews(await RatingService.getReviews(filter));
+      const rows =
+        kind === "services"
+          ? (await RatingService.getServiceReviews(filter)).map((r) => ({
+              ...r,
+              vendor_rating: r.rating,
+              vendors: { business_name: `${r.service_providers?.business_name || "Provider"} · ${r.services?.name || "service"}` },
+              order_product_ratings: [],
+            }))
+          : await RatingService.getReviews(filter);
+      setReviews(rows);
     } catch (err) {
       setError(err.message || "Could not load reviews.");
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, kind]);
 
   useEffect(() => {
     load();
@@ -43,7 +53,9 @@ function AdminReviews() {
     setBusyId(review.id);
     setError("");
     try {
-      await RatingService.moderate(review.id, status, notes[review.id]);
+      await (kind === "services"
+        ? RatingService.moderateService(review.id, status, notes[review.id])
+        : RatingService.moderate(review.id, status, notes[review.id]));
       invalidateRatings();
       await load();
     } catch (err) {
@@ -64,6 +76,15 @@ function AdminReviews() {
             vendor's stars and ranking. Comments are only ever seen here, and by the vendor once approved.
           </p>
         </div>
+      </div>
+
+      <div className="insights-periods" role="group" aria-label="Review type">
+        <button type="button" className={kind === "products" ? "is-active" : ""} onClick={() => setKind("products")}>
+          Vendors &amp; products
+        </button>
+        <button type="button" className={kind === "services" ? "is-active" : ""} onClick={() => setKind("services")}>
+          Service providers
+        </button>
       </div>
 
       <div className="insights-periods" role="group" aria-label="Filter reviews">
