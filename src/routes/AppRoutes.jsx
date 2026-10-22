@@ -37,6 +37,8 @@ const VendorProducts = lazy(() => import("../pages/vendor/VendorProducts"));
 const VendorOrders = lazy(() => import("../pages/vendor/VendorOrders"));
 const ProviderRequests = lazy(() => import("../pages/provider/ProviderRequests"));
 const ProviderInsights = lazy(() => import("../pages/provider/ProviderInsights"));
+const MessagesPage = lazy(() => import("../components/messages/MessagesPanel"));
+const MessagesRedirect = lazy(() => import("../pages/MessagesRedirect"));
 const VendorInsights = lazy(() => import("../pages/vendor/VendorInsights"));
 const AdminReviews = lazy(() => import("../pages/admin/AdminReviews"));
 const VendorEvents = lazy(() => import("../pages/vendor/VendorEvents"));
@@ -77,6 +79,7 @@ function AppRoutes() {
         />
                 <Route path="/cart" element={<Cart />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/messages" element={<MessagesRedirect />} />
         <Route
           path="/marketplace/vendors"
           element={<Vendors />}
@@ -166,6 +169,8 @@ function AppRoutes() {
           element={<VendorInsights />}
         />
 
+        <Route path="messages" element={<MessagesPage />} />
+
         <Route
           path="events"
           element={<VendorEvents />}
@@ -194,6 +199,7 @@ function AppRoutes() {
         <Route path="services" element={<ProviderServices />} />
         <Route path="requests" element={<ProviderRequests />} />
         <Route path="insights" element={<ProviderInsights />} />
+        <Route path="messages" element={<MessagesPage />} />
         <Route path="profile" element={<ProviderAccount />} />
       </Route>
 
@@ -261,6 +267,8 @@ function AppRoutes() {
           path="reviews"
           element={<AdminReviews />}
         />
+
+        <Route path="messages" element={<MessagesPage />} />
       </Route>
 
       {/* =========================
