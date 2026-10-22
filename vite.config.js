@@ -45,7 +45,7 @@ export default defineConfig({
         short_name: "MAK MART",
         description:
           "MAK MART - Makerere University's student marketplace for products, events and services.",
-        theme_color: "#15352a",
+        theme_color: "#ffffff",
         background_color: "#faf8f6",
         display: "standalone",
         start_url: "/",
