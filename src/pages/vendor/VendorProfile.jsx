@@ -2,6 +2,7 @@ import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import ImageUploadField from "../../components/common/ImageUploadField";
 import { supabase } from "../../lib/supabase";
+import DeleteAccountCard from "../../components/common/DeleteAccountCard";
 
 function VendorProfile() {
   const {
@@ -167,6 +168,8 @@ function VendorProfile() {
           Save Changes
         </button>
       </form>
+
+      <DeleteAccountCard />
     </section>
   );
 }

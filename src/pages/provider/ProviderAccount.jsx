@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DeleteAccountCard from "../../components/common/DeleteAccountCard";
 import useAuth from "../../hooks/useAuth";
 import ImageUploadField from "../../components/common/ImageUploadField";
 import ServiceService from "../../services/services";
@@ -77,6 +78,8 @@ function ProviderAccount() {
         </div>
         <button type="submit" className="primary-button">Save changes</button>
       </form>
+
+      <DeleteAccountCard />
     </section>
   );
 }

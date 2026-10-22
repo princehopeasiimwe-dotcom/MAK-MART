@@ -8,6 +8,7 @@ import { formatCurrency } from "../../utils/currency";
 import usePageSeo from "../../hooks/usePageSeo";
 import RatingService from "../../services/ratingService";
 import OrderReviewModal from "../../components/account/OrderReviewModal";
+import DeleteAccountCard from "../../components/common/DeleteAccountCard";
 import ServiceReviewModal from "../../components/account/ServiceReviewModal";
 
 function Account() {
@@ -314,6 +315,10 @@ function Account() {
           </ul>
         </div>
       )}
+
+      <div className="mm-panel">
+        <DeleteAccountCard />
+      </div>
 
       {reviewingRequest && (
         <ServiceReviewModal
