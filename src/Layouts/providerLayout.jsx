@@ -5,16 +5,19 @@ import {
   Inbox,
   BarChart3,
   ArrowLeft,
+  MessageSquare,
   User,
   Store,
   LogOut,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import useUnreadMessages from "../hooks/useUnreadMessages";
 import NotificationBell from "../components/common/NotificationBell";
 import OfferServiceCard from "../components/vendor/OfferServiceCard";
 
 function ProviderLayout() {
-  const { serviceProvider, signOut, isVendor, isAdmin } = useAuth();
+  const { serviceProvider, signOut, isVendor, isAdmin, user } = useAuth();
+  const unread = useUnreadMessages(user?.id);
   const navigate = useNavigate();
 
   const providerName =
@@ -53,6 +56,12 @@ function ProviderLayout() {
           <NavLink to="/provider/requests">
             <Inbox size={19} />
             Requests
+          </NavLink>
+
+          <NavLink to="/provider/messages">
+            <MessageSquare size={19} />
+            Messages
+            {unread > 0 && <span className="nav-badge" aria-label={`${unread} unread`}>{unread}</span>}
           </NavLink>
 
           <NavLink to="/provider/insights">

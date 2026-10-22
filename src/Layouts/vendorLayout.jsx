@@ -9,12 +9,15 @@ import {
   LogOut,
   BarChart3,
   Wrench,
+  MessageSquare,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import useUnreadMessages from "../hooks/useUnreadMessages";
 import NotificationBell from "../components/common/NotificationBell";
 
 function VendorLayout() {
-  const { vendor, signOut } = useAuth();
+  const { vendor, signOut, user } = useAuth();
+  const unread = useUnreadMessages(user?.id);
   const navigate = useNavigate();
 
   const vendorName =
@@ -63,6 +66,12 @@ function VendorLayout() {
           <NavLink to="/provider/services">
             <Wrench size={19} />
             My services
+          </NavLink>
+
+          <NavLink to="/vendor/messages">
+            <MessageSquare size={19} />
+            Messages
+            {unread > 0 && <span className="nav-badge" aria-label={`${unread} unread`}>{unread}</span>}
           </NavLink>
 
           <NavLink to="/vendor/insights">

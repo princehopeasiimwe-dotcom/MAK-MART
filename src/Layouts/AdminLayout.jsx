@@ -12,12 +12,15 @@ import {
   Tag,
   LogOut,
   Star,
+  MessageSquare,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import useUnreadMessages from "../hooks/useUnreadMessages";
 import NotificationBell from "../components/common/NotificationBell";
 
 function AdminLayout() {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const unread = useUnreadMessages(user?.id);
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -74,7 +77,13 @@ function AdminLayout() {
             Reports
           </NavLink>
           
-                    <NavLink to="/admin/reviews">
+          <NavLink to="/admin/messages">
+            <MessageSquare size={19} />
+            Messages
+            {unread > 0 && <span className="nav-badge" aria-label={`${unread} unread`}>{unread}</span>}
+          </NavLink>
+
+          <NavLink to="/admin/reviews">
             <Star size={19} />
             Reviews
           </NavLink>
