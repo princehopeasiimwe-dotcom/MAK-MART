@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
-  MoreHorizontal,
+  MoreVertical,
   Search,
   ShoppingBag,
   User,
@@ -87,13 +87,13 @@ function Navbar() {
 
           <Link
             to={user ? "/account" : "/login"}
-            className="mm-icon-button"
+            className="mm-icon-button mm-header__wide-only"
             aria-label={user ? "My account" : "Sign in"}
           >
             <User size={23} />
           </Link>
 
-          <Link to="/cart" className="mm-icon-button" aria-label="Shopping cart">
+          <Link to="/cart" className="mm-icon-button mm-header__wide-only" aria-label="Shopping cart">
             <ShoppingBag size={23} />
             {cartCount > 0 && <b className="mm-badge">{cartCount}</b>}
           </Link>
@@ -105,7 +105,7 @@ function Navbar() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
           >
-            <MoreHorizontal size={26} />
+            <MoreVertical size={26} />
           </button>
         </div>
       </div>
