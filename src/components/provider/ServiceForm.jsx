@@ -1,4 +1,6 @@
 import { useState } from "react";
+import MoneyInput from "../common/MoneyInput";
+import { parseMoney } from "../../utils/money";
 import ImageUploadField from "../common/ImageUploadField";
 import ErrorMessage from "../common/ErrorMessage";
 
@@ -22,7 +24,7 @@ function ServiceForm({
       ? {
           name: initialData.name || "",
           description: initialData.description || "",
-          price: initialData.price ?? "",
+          price: initialData.price != null ? String(Math.round(Number(initialData.price))) : "",
           location: initialData.location || "",
           category_id: initialData.category_id || "",
           is_available: initialData.is_available ?? true,
@@ -50,7 +52,7 @@ function ServiceForm({
       return;
     }
 
-    if (form.price !== "" && Number(form.price) < 0) {
+    if (form.price !== "" && parseMoney(form.price) === null) {
       setError("Price cannot be negative.");
       return;
     }
@@ -61,7 +63,7 @@ function ServiceForm({
       await onSubmit({
         name: form.name.trim(),
         description: form.description.trim() || null,
-        price: form.price === "" ? null : Number(form.price),
+        price: form.price === "" ? null : parseMoney(form.price),
         location: form.location.trim() || null,
         category_id: form.category_id || null,
         is_available: form.is_available,
@@ -104,7 +106,7 @@ function ServiceForm({
 
       <div className="form-group">
         <label htmlFor="svc-price">Price (UGX, leave empty if it varies)</label>
-        <input id="svc-price" name="price" type="number" min="0" step="100" value={form.price} onChange={handleChange} />
+        <MoneyInput id="svc-price" name="price" value={form.price} onChange={handleChange} placeholder="e.g. 20,000" />
       </div>
 
       <div className="form-group">

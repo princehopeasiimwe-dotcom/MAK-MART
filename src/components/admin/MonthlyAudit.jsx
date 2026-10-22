@@ -16,7 +16,7 @@ function csvCell(value) {
   return `"${safe.replace(/"/g, '""')}"`;
 }
 
-function buildCsv(month, audit) {
+function buildCsv(month, audit, svc) {
   const lines = [
     ["MAK MART monthly audit", month],
     [],
@@ -35,6 +35,23 @@ function buildCsv(month, audit) {
     [],
     ["Day", "Visitors", "Product views", "Orders"],
     ...(audit.daily || []).map((d) => [d.day, d.visitors, d.views, d.orders]),
+    ...(svc
+      ? [
+          [],
+          ["SERVICES"],
+          ["People who viewed a service", svc.service_viewers],
+          ["Service views", svc.service_views],
+          ["Requests placed in app", svc.requests_placed],
+          ["Requests cancelled", svc.requests_cancelled],
+          ["Requests confirmed done by customer", svc.requests_completed],
+          ["Completed value (UGX)", svc.completed_value],
+          ["Service reviews", svc.reviews],
+          ["Average service rating (approved)", svc.avg_rating ?? ""],
+          [],
+          ["Provider", "People who viewed", "Views", "Requests", "Completed"],
+          ...(svc.providers || []).map((p) => [p.business_name, p.viewers, p.views, p.requests, p.completed]),
+        ]
+      : []),
   ];
   return lines.map((row) => row.map(csvCell).join(",")).join("\n");
 }
@@ -47,6 +64,7 @@ function pct(part, whole) {
 function MonthlyAudit() {
   const [month, setMonth] = useState(thisMonth());
   const [audit, setAudit] = useState(null);
+  const [svc, setSvc] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +80,14 @@ function MonthlyAudit() {
         p_month: `${month}-01`,
       });
       if (rpcError) throw rpcError;
-      if (active) setAudit(data);
+      // Services audit is optional: it only exists once migration 020 has been run.
+      const { data: svcData } = await supabase.rpc("admin_monthly_service_audit", {
+        p_month: `${month}-01`,
+      });
+      if (active) {
+        setAudit(data);
+        setSvc(svcData || null);
+      }
     }
 
     load()
@@ -85,7 +110,7 @@ function MonthlyAudit() {
   }, [month]);
 
   const download = () => {
-    const blob = new Blob([buildCsv(month, audit)], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([buildCsv(month, audit, svc)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -165,6 +190,47 @@ function MonthlyAudit() {
                 ))}
               </tbody>
             </table>
+          )}
+
+          {svc && (
+            <>
+              <h3 className="audit__subhead">Services</h3>
+              <div className="stats-grid">
+                <div className="stat-card"><span>Viewed a service</span><strong>{svc.service_viewers}</strong></div>
+                <div className="stat-card"><span>Requests placed</span><strong>{svc.requests_placed}</strong></div>
+                <div className="stat-card"><span>Confirmed done</span><strong>{svc.requests_completed}</strong></div>
+                <div className="stat-card"><span>Completed value</span><strong>{formatCurrency(svc.completed_value)}</strong></div>
+              </div>
+              <p className="audit__funnel">
+                {svc.service_viewers} people looked at a service, {svc.requests_placed} requests were placed in the app and{" "}
+                {svc.requests_completed} were confirmed done.
+                {svc.avg_rating ? ` Average service rating: ${svc.avg_rating}★ from ${svc.reviews} reviews.` : ""}
+              </p>
+              {svc.providers?.length > 0 && (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Provider</th>
+                      <th>People who viewed</th>
+                      <th>Views</th>
+                      <th>Requests</th>
+                      <th>Completed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {svc.providers.map((p) => (
+                      <tr key={p.provider_id}>
+                        <td>{p.business_name}</td>
+                        <td>{p.viewers}</td>
+                        <td>{p.views}</td>
+                        <td>{p.requests}</td>
+                        <td>{p.completed}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </>
           )}
         </>
       )}

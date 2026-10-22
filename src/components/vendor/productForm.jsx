@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import MoneyInput from "../common/MoneyInput";
+import { parseMoney } from "../../utils/money";
 import Button from "../common/button";
 import ErrorMessage from "../common/ErrorMessage";
 import ImageUploadField from "../common/ImageUploadField";
@@ -24,7 +26,7 @@ function ProductForm({
       ? {
           name: initialData.name || "",
           description: initialData.description || "",
-          price: initialData.price || "",
+          price: initialData.price ? String(Math.round(Number(initialData.price))) : "",
           stock_quantity:
             initialData.stock_quantity ?? "1",
           condition: initialData.condition || "new",
@@ -69,7 +71,7 @@ function ProductForm({
       return;
     }
 
-    if (!form.price || Number(form.price) <= 0) {
+    if (!parseMoney(form.price)) {
       setError("Enter a valid product price.");
       return;
     }
@@ -86,7 +88,7 @@ function ProductForm({
         {
           name: form.name,
           description: form.description,
-          price: Number(form.price),
+          price: parseMoney(form.price),
           stock_quantity: Number(form.stock_quantity) || 0,
           condition: form.condition,
           category_id: form.category_id,
@@ -190,15 +192,14 @@ function ProductForm({
           Price (UGX)
         </label>
 
-        <input
+        <MoneyInput
           id="price"
           name="price"
-          type="number"
-          min="0"
           value={form.price}
           onChange={handleChange}
-          placeholder="35000"
+          placeholder="35,000"
         />
+        <p className="field-hint">You can type it with commas, like 35,000, or as 35k.</p>
       </div>
 
       <div className="form-group">

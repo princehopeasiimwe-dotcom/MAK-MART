@@ -6,7 +6,10 @@ import {
   BriefcaseBusiness,
 } from "lucide-react";
 
+import useRatings from "../../hooks/useRatings";
+
 function ServiceCard({ service }) {
+  const { serviceStats, providerStats } = useRatings();
   if (!service) return null;
 
   const serviceId = service.id;
@@ -35,10 +38,9 @@ function ServiceCard({ service }) {
     service.location ||
     "Makerere University";
 
-  const rating =
-    service.rating ||
-    service.average_rating ||
-    null;
+  const ratingStats =
+    serviceStats.get(service.id) || providerStats.get(service.provider_id);
+  const rating = ratingStats?.rating_count ? ratingStats.rating_avg : null;
 
   return (
     <Link

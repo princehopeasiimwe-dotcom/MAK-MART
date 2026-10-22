@@ -1,4 +1,6 @@
 import { useState } from "react";
+import MoneyInput from "../common/MoneyInput";
+import { parseMoney } from "../../utils/money";
 import Button from "../common/button";
 import ErrorMessage from "../common/ErrorMessage";
 import ImageUploadField from "../common/ImageUploadField";
@@ -39,7 +41,7 @@ function EventForm({
           location: initialData.location || "",
           image_url: initialData.image_url || "",
           contact_whatsapp: initialData.contact_whatsapp || "",
-          ticket_price: initialData.ticket_price ?? "",
+          ticket_price: initialData.ticket_price != null ? String(Math.round(Number(initialData.ticket_price))) : "",
           booking_deadline: toDateTimeLocal(
             initialData.booking_deadline
           ),
@@ -101,7 +103,7 @@ function EventForm({
         image_url: form.image_url,
         contact_whatsapp: form.contact_whatsapp,
         ticket_price: form.ticket_price
-          ? Number(form.ticket_price)
+          ? parseMoney(form.ticket_price)
           : null,
         start_time: new Date(form.start_time).toISOString(),
         end_time: form.end_time
@@ -213,11 +215,9 @@ function EventForm({
           Ticket price (UGX, optional)
         </label>
 
-        <input
+        <MoneyInput
           id="ticket_price"
           name="ticket_price"
-          type="number"
-          min="0"
           value={form.ticket_price}
           onChange={handleChange}
           placeholder="Leave blank if free"

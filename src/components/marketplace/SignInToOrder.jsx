@@ -16,10 +16,10 @@ function SignInToOrder({ isOpen, onClose }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create an account to order">
+    <Modal isOpen={isOpen} onClose={onClose} title="Create an account to continue">
       <div className="signin-to-order">
         <p>
-          To place an order you first need a free MAK MART account. It takes about a minute, and
+          To place an order or request a service you first need a free MAK MART account. It takes about a minute, and
           you'll come straight back here to message the seller on WhatsApp.
         </p>
         <p className="field-hint">

@@ -7,7 +7,9 @@ function ProductManagement({
   onAdd,
   onEdit,
   onDelete,
+  limit = 0,
 }) {
+  const atLimit = limit > 0 && products.length >= limit;
   return (
     <div className="dashboard-page">
       <div className="page-header page-header--with-action">
@@ -19,6 +21,7 @@ function ProductManagement({
         <button
           type="button"
           className="primary-button"
+          disabled={atLimit}
           onClick={() => onAdd?.()}
         >
           <Plus size={18} />
@@ -26,12 +29,20 @@ function ProductManagement({
         </button>
       </div>
 
+      {limit > 0 && (
+        <p className={`product-limit ${atLimit ? "is-full" : ""}`}>
+          {atLimit
+            ? `You've used all ${limit} product slots. Delete a product to add a different one.`
+            : `${products.length} of ${limit} products used.`}
+        </p>
+      )}
+
       {loading ? (
         <p>Loading products...</p>
       ) : !products.length ? (
         <div className="empty-state">
           <h3>No products yet</h3>
-          <p>Add your first product to start selling on KU Market.</p>
+          <p>Add your first product to start selling on MAK MART.</p>
         </div>
       ) : (
         <div className="product-management">
