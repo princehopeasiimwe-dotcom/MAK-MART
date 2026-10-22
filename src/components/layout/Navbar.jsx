@@ -2,12 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
-  MapPin,
-  Menu,
+  MoreHorizontal,
   Search,
   ShoppingBag,
   User,
-  X,
 } from "lucide-react";
 import Brand from "./Brand";
 import NotificationBell from "../common/NotificationBell";
@@ -70,11 +68,6 @@ function Navbar() {
 
   return (
     <header className="mm-header">
-      <div className="mm-topbar">
-        <MapPin size={15} aria-hidden="true" />
-        <span>Made for Makerere. Powered by our community.</span>
-      </div>
-
       <div className="mm-header__main mm-container">
         <Brand />
 
@@ -112,7 +105,7 @@ function Navbar() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            <MoreHorizontal size={26} />
           </button>
         </div>
       </div>
