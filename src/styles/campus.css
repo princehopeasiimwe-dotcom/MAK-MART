@@ -1589,7 +1589,7 @@
 .mm-banner { padding-top: 14px; }
 
 .mm-banner__frame {
-  border-radius: 20px;
+  border-radius: 10px;
   overflow: hidden;
   background: var(--mm-green);
   box-shadow: 0 6px 22px rgba(23, 27, 25, 0.12);
@@ -1621,8 +1621,8 @@
   flex: 0 0 100%;
   scroll-snap-align: start;
   display: block;
-  aspect-ratio: 16 / 8;
-  min-height: 190px;
+  aspect-ratio: 16 / 11;
+  min-height: 240px;
   color: #fff;
   text-decoration: none;
   overflow: hidden;
@@ -1805,7 +1805,7 @@
 }
 
 @media (min-width: 900px) {
-  .mm-banner__slide { aspect-ratio: auto; height: 340px; }
+  .mm-banner__slide { aspect-ratio: auto; height: 440px; }
   .mm-banner__text { padding: 28px 44px; max-width: 55%; }
 }
 
