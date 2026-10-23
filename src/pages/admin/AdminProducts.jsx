@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Archive, RotateCcw } from "lucide-react";
 
 import ProductService from "../../services/ProductService";
@@ -53,6 +54,10 @@ function AdminProducts() {
           <span className="eyebrow">ADMINISTRATION</span>
           <h1>Products</h1>
           <p>Every product listed across all vendors.</p>
+          <p>
+            Something in the wrong category, or posted in the wrong place?{" "}
+            <Link to="/admin/fix-listings">Fix wrongly posted items</Link>
+          </p>
         </div>
       </div>
 
