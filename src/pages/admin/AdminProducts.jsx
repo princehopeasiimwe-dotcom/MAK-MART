@@ -58,6 +58,10 @@ function AdminProducts() {
             Something in the wrong category, or posted in the wrong place?{" "}
             <Link to="/admin/fix-listings">Fix wrongly posted items</Link>
           </p>
+          <p>
+            Home page sponsors ribbon:{" "}
+            <Link to="/admin/sponsors">Manage sponsors</Link>
+          </p>
         </div>
       </div>
 
