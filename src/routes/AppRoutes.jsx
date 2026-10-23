@@ -42,6 +42,7 @@ const MessagesRedirect = lazy(() => import("../pages/MessagesRedirect"));
 const VendorInsights = lazy(() => import("../pages/vendor/VendorInsights"));
 const AdminReviews = lazy(() => import("../pages/admin/AdminReviews"));
 const AdminFixListings = lazy(() => import("../pages/admin/AdminFixListings"));
+const AdminSponsors = lazy(() => import("../pages/admin/AdminSponsors"));
 const VendorEvents = lazy(() => import("../pages/vendor/VendorEvents"));
 const VendorProfilePage = lazy(() => import("../pages/vendor/VendorProfile"));
 
@@ -272,6 +273,11 @@ function AppRoutes() {
         <Route
           path="fix-listings"
           element={<AdminFixListings />}
+        />
+
+        <Route
+          path="sponsors"
+          element={<AdminSponsors />}
         />
 
         <Route path="messages" element={<MessagesPage />} />
