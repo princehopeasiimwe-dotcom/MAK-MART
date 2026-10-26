@@ -5,6 +5,7 @@ import { ArrowRightLeft, Search } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import Modal from "../../components/common/modal";
 import { formatDate } from "../../utils/formatters";
+import { flattenTree } from "../../lib/categoryTree";
 
 const TABS = [
   { key: "product", label: "Products" },
@@ -95,11 +96,14 @@ function AdminFixListings() {
       setError(null);
       const [list, pc, sc] = await Promise.all([
         loadListings(tab),
-        supabase.from("categories").select("id, name").order("name"),
+        supabase.from("categories").select("id, name, parent_id").order("name"),
         supabase.from("service_categories").select("id, name").order("name"),
       ]);
       setRows(list);
-      setProductCats(pc.data || []);
+      // full paths, e.g. "Technology › Phones › iPhones"
+      setProductCats(
+        flattenTree(pc.data || []).map((c) => ({ id: c.id, name: c.path }))
+      );
       setServiceCats(sc.data || []);
     } catch (err) {
       setError(err.message || "Could not load the list.");

@@ -23,7 +23,9 @@ function Home() {
 
   useEffect(() => {
     ProductService.getCategories()
-      .then((data) => setCategories(data.slice(0, 8)))
+      .then((data) =>
+        setCategories(data.filter((category) => !category.parent_id).slice(0, 8))
+      )
       .catch(() => setCategories([]));
   }, []);
 

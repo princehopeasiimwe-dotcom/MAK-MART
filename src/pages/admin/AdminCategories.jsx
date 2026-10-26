@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, ImageOff } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageOff, FolderPlus } from "lucide-react";
 
 import ProductService from "../../services/ProductService";
 import Modal from "../../components/common/modal";
 import CategoryForm from "../../components/admin/CategoryForm";
+import { flattenTree } from "../../lib/categoryTree";
 
 function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -11,6 +12,7 @@ function AdminCategories() {
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [newParentId, setNewParentId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -30,8 +32,9 @@ function AdminCategories() {
     load();
   }, []);
 
-  const handleAdd = () => {
+  const handleAdd = (parentId = "") => {
     setSelectedCategory(null);
+    setNewParentId(parentId);
     setModalOpen(true);
   };
 
@@ -59,6 +62,13 @@ function AdminCategories() {
   };
 
   const handleDelete = async (category) => {
+    if (categories.some((item) => item.parent_id === category.id)) {
+      setError(
+        `"${category.name}" still has sub-categories. Move or delete those first.`
+      );
+      return;
+    }
+
     const confirmed = window.confirm(
       `Delete "${category.name}"? Products already using this category will keep their listing but lose their category tag.`
     );
@@ -73,19 +83,21 @@ function AdminCategories() {
     }
   };
 
+  const tree = flattenTree(categories);
+
   return (
     <section className="dashboard-page">
       <div className="page-header page-header--with-action">
         <div>
           <span className="eyebrow">ADMINISTRATION</span>
           <h1>Categories</h1>
-          <p>Manage the categories shoppers browse by.</p>
+          <p>Manage the categories shoppers browse by. Use the folder button to add a sub-category inside one.</p>
         </div>
 
         <button
           type="button"
           className="primary-button"
-          onClick={handleAdd}
+          onClick={() => handleAdd()}
         >
           <Plus size={18} />
           Add Category
@@ -102,29 +114,45 @@ function AdminCategories() {
           <p>Add your first category to help shoppers browse.</p>
         </div>
       ) : (
-        <div className="admin-category-grid">
-          {categories.map((category) => (
-            <div className="admin-category-card" key={category.id}>
-              <div className="admin-category-card__image">
+        <div className="admin-category-tree">
+          {tree.map((category) => (
+            <div
+              className="admin-category-row"
+              key={category.id}
+              style={{ marginLeft: (category.depth - 1) * 26 }}
+            >
+              <div className="admin-category-row__thumb">
                 {category.image_url ? (
-                  <img src={category.image_url} alt={category.name} />
+                  <img src={category.image_url} alt="" />
                 ) : (
-                  <ImageOff size={22} />
-                )}
-
-                {!category.is_active && (
-                  <span className="admin-category-card__hidden">
-                    Hidden
-                  </span>
+                  <ImageOff size={18} />
                 )}
               </div>
 
-              <div className="admin-category-card__content">
-                <h3>{category.name}</h3>
-                {category.description && <p>{category.description}</p>}
+              <div className="admin-category-row__text">
+                <strong>{category.name}</strong>
+                <small>
+                  {category.depth === 1
+                    ? "Main category"
+                    : category.depth === 2
+                    ? "Sub-category"
+                    : "Type"}
+                  {category.depth > 1 && ` · ${category.path}`}
+                  {!category.is_active && " · Hidden"}
+                </small>
               </div>
 
               <div className="admin-row-actions">
+                {category.depth < 3 && (
+                  <button
+                    type="button"
+                    onClick={() => handleAdd(category.id)}
+                    title="Add a sub-category inside this one"
+                  >
+                    <FolderPlus size={16} />
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={() => handleEdit(category)}
@@ -155,7 +183,10 @@ function AdminCategories() {
         }
       >
         <CategoryForm
+          key={selectedCategory?.id || `new-${newParentId}`}
           initialData={selectedCategory}
+          categories={categories}
+          parentId={newParentId}
           onSubmit={handleSubmit}
           loading={saving}
         />
