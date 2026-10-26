@@ -2,16 +2,20 @@ import { useState } from "react";
 import Button from "../common/button";
 import ErrorMessage from "../common/ErrorMessage";
 import ImageUploadField from "../common/ImageUploadField";
+import { descendantIds, flattenTree, heightOf } from "../../lib/categoryTree";
 
 const initialForm = {
   name: "",
   description: "",
   image_url: "",
   is_active: true,
+  parent_id: "",
 };
 
 function CategoryForm({
   initialData = null,
+  categories = [],
+  parentId = "",
   onSubmit,
   loading = false,
 }) {
@@ -22,11 +26,22 @@ function CategoryForm({
           description: initialData.description || "",
           image_url: initialData.image_url || "",
           is_active: initialData.is_active ?? true,
+          parent_id: initialData.parent_id || "",
         }
-      : initialForm
+      : { ...initialForm, parent_id: parentId || "" }
   );
 
   const [error, setError] = useState("");
+
+  // Where can this category go? Anything that is not itself (or inside itself)
+  // and leaves room for the levels already underneath it (3 levels max).
+  const ownHeight = initialData ? heightOf(categories, initialData.id) : 1;
+  const blocked = new Set(
+    initialData ? descendantIds(categories, initialData.id) : []
+  );
+  const parentOptions = flattenTree(categories).filter(
+    (category) => !blocked.has(category.id) && category.depth + ownHeight <= 3
+  );
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -52,10 +67,11 @@ function CategoryForm({
         description: form.description,
         image_url: form.image_url,
         is_active: form.is_active,
+        parent_id: form.parent_id || null,
       });
 
       if (!initialData) {
-        setForm(initialForm);
+        setForm({ ...initialForm, parent_id: parentId || "" });
       }
     } catch (err) {
       setError(
@@ -88,6 +104,33 @@ function CategoryForm({
           onChange={handleChange}
           placeholder="e.g. Fashion"
         />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="parent_id">
+          Sits under
+        </label>
+
+        <select
+          id="parent_id"
+          name="parent_id"
+          value={form.parent_id}
+          onChange={handleChange}
+        >
+          <option value="">
+            Nothing - this is a main category
+          </option>
+
+          {parentOptions.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.path}
+            </option>
+          ))}
+        </select>
+        <p className="field-hint">
+          Example: to make "iPhones", choose "Technology › Phones". Up to
+          three levels.
+        </p>
       </div>
 
       <ImageUploadField

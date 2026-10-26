@@ -4,6 +4,7 @@ import { parseMoney } from "../../utils/money";
 import Button from "../common/button";
 import ErrorMessage from "../common/ErrorMessage";
 import ImageUploadField from "../common/ImageUploadField";
+import CategoryPicker from "../common/CategoryPicker";
 import ProductService from "../../services/ProductService";
 
 const initialForm = {
@@ -161,31 +162,13 @@ function ProductForm({
         />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="category_id">
-          Category
-        </label>
-
-        <select
-          id="category_id"
-          name="category_id"
-          value={form.category_id}
-          onChange={handleChange}
-        >
-          <option value="">
-            Select a category
-          </option>
-
-          {categories.map((category) => (
-            <option
-              key={category.id}
-              value={category.id}
-            >
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <CategoryPicker
+        categories={categories}
+        value={form.category_id}
+        onChange={(id) =>
+          setForm((current) => ({ ...current, category_id: id }))
+        }
+      />
 
       <div className="form-group">
         <label htmlFor="price">
