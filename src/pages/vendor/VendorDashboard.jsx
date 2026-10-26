@@ -11,6 +11,7 @@ import { supabase } from "../../lib/supabase";
 import { Link } from "react-router-dom";
 import OfferServiceCard from "../../components/vendor/OfferServiceCard";
 import WhatsAppGroupCard from "../../components/common/WhatsAppGroupCard";
+import ShareStoreCard from "../../components/vendor/ShareStoreCard";
 
 function VendorDashboard() {
   const { user, vendor } = useAuth();
@@ -96,6 +97,8 @@ function VendorDashboard() {
           products won't appear publicly until then.
         </div>
       )}
+
+      <ShareStoreCard vendor={vendor} />
 
       <WhatsAppGroupCard approved={Boolean(vendor?.is_active)} />
 

@@ -11,6 +11,7 @@ import {
   flattenTree,
   topLevel,
 } from "../../lib/categoryTree";
+import { searchProducts } from "../../lib/productSearch";
 import ProductService from "../../services/ProductService";
 import ProductGrid from "../../components/marketplace/productGrid";
 import ProductRow from "../../components/marketplace/ProductRow";
@@ -92,7 +93,7 @@ function Products() {
   const search = searchParams.get("search") || "";
   const category = searchParams.get("category") || null;
 
-  const { products: rawProducts, loading, error } = useProducts({ search });
+  const { products: rawProducts, loading, error } = useProducts({});
 
   const { vendorStats, productStats } = useRatings();
   const ranked = useMemo(
@@ -125,6 +126,12 @@ function Products() {
     const ids = new Set(descendantIds(categories, category));
     return ranked.filter((product) => ids.has(product.category_id));
   }, [ranked, categories, category]);
+
+  // smart search: any word in the name, description, category or vendor
+  const found = useMemo(
+    () => (search ? searchProducts(inCategory, search, categories) : null),
+    [search, inCategory, categories]
+  );
 
   const shelves = useMemo(
     () => buildShelves(inCategory, categories, category),
@@ -207,9 +214,25 @@ function Products() {
         </nav>
       )}
 
-      {search && (
+      {search && found && (
         <div className="active-filter">
-          Results for <strong>“{search}”</strong>
+          {found.results.length === 0 ? (
+            <>
+              Nothing matched <strong>“{search}”</strong>. Try a shorter or
+              different word.
+            </>
+          ) : found.partial ? (
+            <>
+              No product has every word in <strong>“{search}”</strong>. Showing
+              the closest matches.
+            </>
+          ) : (
+            <>
+              {found.results.length}{" "}
+              {found.results.length === 1 ? "result" : "results"} for{" "}
+              <strong>“{search}”</strong>
+            </>
+          )}
         </div>
       )}
 
@@ -238,7 +261,7 @@ function Products() {
         )
       ) : (
         <ProductGrid
-          products={inCategory}
+          products={found ? found.results : inCategory}
           loading={waiting}
           error={error}
         />
