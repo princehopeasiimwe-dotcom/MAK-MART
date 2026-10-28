@@ -49,7 +49,14 @@ function wrapLines(ctx, text, maxWidth, maxLines) {
 
 const FONT = '"Plus Jakarta Sans", "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
-export async function makeSharePoster({ shopName, shopLogoUrl, brandLogoUrl = "/icons/icon-512.png" }) {
+export async function makeSharePoster({
+  shopName,
+  shopLogoUrl,
+  brandLogoUrl = "/icons/icon-512.png",
+  tagline = "Shop my products on MAK MART",
+  footer = "Buy from students. Support students.",
+  fallbackName = "My shop",
+}) {
   try {
     await document.fonts?.ready;
   } catch {
@@ -104,7 +111,7 @@ export async function makeSharePoster({ shopName, shopLogoUrl, brandLogoUrl = "/
   const cardY = 600;
   const cardW = W - 180;
   ctx.font = `800 76px ${FONT}`;
-  const nameLines = wrapLines(ctx, shopName || "My shop", cardW - 120, 2);
+  const nameLines = wrapLines(ctx, shopName || fallbackName, cardW - 120, 2);
   const subtitleY = cardY + 420 + (nameLines.length - 1) * 88 + 88 + 20;
   const pillW = 640;
   const pillH = 120;
@@ -162,7 +169,7 @@ export async function makeSharePoster({ shopName, shopLogoUrl, brandLogoUrl = "/
 
   ctx.fillStyle = "#6b7370";
   ctx.font = `500 42px ${FONT}`;
-  ctx.fillText("Shop my products on MAK MART", W / 2, subtitleY);
+  ctx.fillText(tagline, W / 2, subtitleY);
 
   // call to action pill
   const pillX = (W - pillW) / 2;
@@ -181,7 +188,7 @@ export async function makeSharePoster({ shopName, shopLogoUrl, brandLogoUrl = "/
   ctx.fillText("↓", W / 2, 1620);
   ctx.font = `600 34px ${FONT}`;
   ctx.fillStyle = "rgba(255,255,255,0.92)";
-  ctx.fillText("Buy from students. Support students.", W / 2, 1730);
+  ctx.fillText(footer, W / 2, 1730);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
