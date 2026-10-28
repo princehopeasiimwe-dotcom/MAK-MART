@@ -9,6 +9,7 @@ import ServicePreview from "../../components/home/ServicesPreview";
 import VendorCTA from "../../components/home/VendorCTA";
 import EventsCarousel from "../../components/home/EventsCarousel";
 import SponsorsRibbon from "../../components/home/SponsorsRibbon";
+import { isOnPromo, sortPromos } from "../../lib/promo";
 
 import usePageSeo from "../../hooks/usePageSeo";
 
@@ -28,6 +29,12 @@ function Home() {
       )
       .catch(() => setCategories([]));
   }, []);
+
+  // products on promotion come first on the home page
+  const promos = useMemo(
+    () => sortPromos(allProducts.filter(isOnPromo)).slice(0, 4),
+    [allProducts]
+  );
 
   // "Campus favourites" = featured products; if none are featured yet,
   // fall back to the newest products so the section is never empty.
@@ -49,6 +56,16 @@ function Home() {
       <SponsorsRibbon />
 
       <CategoryChips categories={categories} />
+
+      {promos.length > 0 && (
+        <ProductSection
+          title="🔥 Promotions"
+          subtitle="BLACK NOVEMBER DEALS"
+          products={promos}
+          loading={false}
+          viewAllTo="/marketplace/products?promo=1"
+        />
+      )}
 
       <ProductSection
         title="Campus favourites"

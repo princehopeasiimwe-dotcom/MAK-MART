@@ -19,6 +19,7 @@ import SignInToOrder from "../../components/marketplace/SignInToOrder";
 import useAuth from "../../hooks/useAuth";
 import MoreCampusFinds from "../../components/marketplace/MoreCampusFinds";
 import { formatCurrency } from "../../utils/currency";
+import { isOnPromo, discountPercent, promoEndsLabel } from "../../lib/promo";
 
 import usePageSeo from "../../hooks/usePageSeo";
 import useRatings from "../../hooks/useRatings";
@@ -122,9 +123,22 @@ function ProductDetails() {
             showEmpty
           />
 
-          <h2>
-            {formatCurrency(product.price || 0)}
-          </h2>
+          {isOnPromo(product) ? (
+            <div className="promo-price">
+              <span className="promo-price__tag">
+                -{discountPercent(product)}% promotion
+                {promoEndsLabel(product) ? ` · ${promoEndsLabel(product)}` : ""}
+              </span>
+              <s className="promo-price__old">
+                {formatCurrency(product.compare_at_price)}
+              </s>
+              <h2>{formatCurrency(product.price || 0)}</h2>
+            </div>
+          ) : (
+            <h2>
+              {formatCurrency(product.price || 0)}
+            </h2>
+          )}
 
           <p>
             {product.description ||

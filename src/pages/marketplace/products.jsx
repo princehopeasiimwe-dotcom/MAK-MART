@@ -12,6 +12,7 @@ import {
   topLevel,
 } from "../../lib/categoryTree";
 import { searchProducts } from "../../lib/productSearch";
+import { isOnPromo, sortPromos } from "../../lib/promo";
 import ProductService from "../../services/ProductService";
 import ProductGrid from "../../components/marketplace/productGrid";
 import ProductRow from "../../components/marketplace/ProductRow";
@@ -92,6 +93,7 @@ function Products() {
 
   const search = searchParams.get("search") || "";
   const category = searchParams.get("category") || null;
+  const promoOnly = searchParams.get("promo") === "1";
 
   const { products: rawProducts, loading, error } = useProducts({});
 
@@ -127,10 +129,20 @@ function Products() {
     return ranked.filter((product) => ids.has(product.category_id));
   }, [ranked, categories, category]);
 
+  // products on promotion (old price crossed out), biggest discount first
+  const promos = useMemo(
+    () => sortPromos(inCategory.filter(isOnPromo)),
+    [inCategory]
+  );
+  const anyPromo = useMemo(() => ranked.some(isOnPromo), [ranked]);
+
+  // the "Promotions" page shows only promotions
+  const pool = promoOnly ? promos : inCategory;
+
   // smart search: any word in the name, description, category or vendor
   const found = useMemo(
-    () => (search ? searchProducts(inCategory, search, categories) : null),
-    [search, inCategory, categories]
+    () => (search ? searchProducts(pool, search, categories) : null),
+    [search, pool, categories]
   );
 
   const shelves = useMemo(
@@ -142,11 +154,13 @@ function Products() {
     const params = {};
     if (query) params.search = query;
     if (category) params.category = category;
+    if (promoOnly) params.promo = "1";
     setSearchParams(params);
   };
 
   // shelves for browsing; a flat grid for searching or for a category with nothing inside it
-  const showShelves = !search && (!category || subCategories.length > 0);
+  const showShelves =
+    !search && !promoOnly && (!category || subCategories.length > 0);
   const waiting = loading || !categoriesReady;
 
   return (
@@ -154,9 +168,13 @@ function Products() {
       <div className="page-header">
         <span className="eyebrow">MAK MART MARKETPLACE</span>
 
-        <h1>Explore Products</h1>
+        <h1>{promoOnly ? "Promotions" : "Explore Products"}</h1>
 
-        <p>Discover products sold by student entrepreneurs.</p>
+        <p>
+          {promoOnly
+            ? "Limited-time deals from student vendors. The old price is crossed out."
+            : "Discover products sold by student entrepreneurs."}
+        </p>
       </div>
 
       <SearchBar
@@ -168,10 +186,18 @@ function Products() {
       <nav className="mm-catbar" aria-label="Categories">
         <Link
           to="/marketplace/products"
-          className={!category ? "is-active" : ""}
+          className={!category && !promoOnly ? "is-active" : ""}
         >
           All
         </Link>
+        {anyPromo && (
+          <Link
+            to="/marketplace/products?promo=1"
+            className={`mm-catbar__promo ${promoOnly ? "is-active" : ""}`}
+          >
+            🔥 Promotions
+          </Link>
+        )}
         {topLevel(categories).map((item) => (
           <Link
             key={item.id}
@@ -249,7 +275,17 @@ function Products() {
             message="There are no products here right now."
           />
         ) : (
-          shelves.map((shelf) => (
+          <>
+            {promos.length > 0 && (
+              <ProductRow
+                variant="promo"
+                eyebrow="Black November deals"
+                title="🔥 Promotions"
+                to="/marketplace/products?promo=1"
+                products={promos.slice(0, ROW_LIMIT)}
+              />
+            )}
+            {shelves.map((shelf) => (
             <ProductRow
               key={shelf.key}
               title={shelf.title}
@@ -257,11 +293,16 @@ function Products() {
               to={shelf.to}
               products={shelf.products.slice(0, ROW_LIMIT)}
             />
-          ))
+            ))}
+          </>
         )
       ) : (
         <ProductGrid
-          products={found ? found.results : inCategory}
+          products={found ? found.results : pool}
+          emptyTitle={promoOnly ? "No promotions right now" : undefined}
+          emptyMessage={
+            promoOnly ? "Check back soon. Vendors add new deals often." : undefined
+          }
           loading={waiting}
           error={error}
         />
