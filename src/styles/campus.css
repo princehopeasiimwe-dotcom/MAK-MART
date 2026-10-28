@@ -2052,3 +2052,100 @@
   .share-store { grid-template-columns: 1fr; }
   .share-store__preview { max-width: 180px; }
 }
+/* ================= promotions (pack 34) ================= */
+.mm-card__badge--promo {
+  background: #d12c1f;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.mm-card__pricebox { margin: 0 0 12px; }
+.mm-card__pricebox .mm-card__price { margin: 0; }
+.mm-card__oldprice {
+  display: block;
+  font: 500 14px/1.2 var(--mm-body);
+  color: #8a918e;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+.mm-card__price--promo { color: #d12c1f; }
+
+/* product page */
+.promo-price { margin: 4px 0 8px; }
+.promo-price__tag {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #d12c1f;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.promo-price__old {
+  display: block;
+  font-size: 18px;
+  color: #8a918e;
+  text-decoration: line-through;
+}
+.promo-price h2 { margin: 2px 0 0; color: #d12c1f !important; }
+
+/* vendor product list */
+.vendor-oldprice { color: #8a918e; font-size: 14px; text-decoration: line-through; }
+.vendor-promo-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fde8e6;
+  color: #b3231a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* product form */
+.promo-box {
+  padding: 14px 16px;
+  border: 2px dashed #f2b8b3;
+  border-radius: 14px;
+  background: #fff7f6;
+}
+.promo-box__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.promo-box__toggle input { width: 20px; height: 20px; accent-color: #d12c1f; }
+.promo-box > label:not(.promo-box__toggle) { display: block; margin-top: 12px; }
+.promo-box__preview {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 15px;
+}
+.promo-box__preview s { color: #8a918e; }
+.promo-box__preview strong { color: #d12c1f; }
+
+/* promotions shelf + chip */
+.mm-catbar a.mm-catbar__promo {
+  background: #171b19;
+  border-color: #171b19;
+  color: #fff;
+  font-weight: 800;
+}
+.mm-catbar a.mm-catbar__promo.is-active { background: #d12c1f; border-color: #d12c1f; }
+
+.mm-row--promo {
+  margin-top: 18px;
+  padding: 18px 16px 8px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #171b19 0%, #2b1410 100%);
+}
+.mm-row--promo .mm-row__head h2,
+.mm-row--promo .mm-row__all { color: #fff; }
+.mm-row--promo .mm-row__eyebrow { color: #ffb08a; }
+.mm-row--promo .mm-row__arrow { background: #fff; color: #171b19; }
