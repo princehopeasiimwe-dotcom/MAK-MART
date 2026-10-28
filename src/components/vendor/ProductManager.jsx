@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { formatCurrency } from "../../utils/currency";
+import { isOnPromo, discountPercent, promoEndsLabel } from "../../lib/promo";
 
 function ProductManagement({
   products = [],
@@ -62,9 +63,22 @@ function ProductManagement({
               <div className="vendor-product-info">
                 <h3>{product.name}</h3>
                 <p>{product.categories?.name || "Uncategorized"}</p>
-                <strong>
-                  {formatCurrency(product.price)}
-                </strong>
+                {isOnPromo(product) ? (
+                  <>
+                    <s className="vendor-oldprice">
+                      {formatCurrency(product.compare_at_price)}
+                    </s>{" "}
+                    <strong>{formatCurrency(product.price)}</strong>
+                    <span className="vendor-promo-tag">
+                      -{discountPercent(product)}% promo
+                      {promoEndsLabel(product) ? ` · ${promoEndsLabel(product)}` : ""}
+                    </span>
+                  </>
+                ) : (
+                  <strong>
+                    {formatCurrency(product.price)}
+                  </strong>
+                )}
               </div>
 
               <div className="vendor-product-actions">

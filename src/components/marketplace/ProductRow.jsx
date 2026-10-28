@@ -6,7 +6,7 @@ import ProductCard from "./productcard";
 
 // One shelf: a title and a single row of products that scrolls sideways
 // (arrow buttons on a computer, swipe on a phone).
-function ProductRow({ title, eyebrow, to, products = [] }) {
+function ProductRow({ title, eyebrow, to, products = [], variant = "" }) {
   const trackRef = useRef(null);
 
   if (!products.length) return null;
@@ -21,7 +21,7 @@ function ProductRow({ title, eyebrow, to, products = [] }) {
   };
 
   return (
-    <section className="mm-row" aria-label={title}>
+    <section className={`mm-row ${variant ? `mm-row--${variant}` : ""}`} aria-label={title}>
       <div className="mm-row__head">
         <div>
           {eyebrow && <span className="mm-row__eyebrow">{eyebrow}</span>}

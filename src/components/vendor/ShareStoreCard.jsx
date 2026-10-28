@@ -1,26 +1,37 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Copy, Download, Share2, Check } from "lucide-react";
 
 import { makeSharePoster } from "../../lib/sharePoster";
 
-// Lets a vendor post their shop on a WhatsApp status (or anywhere):
-// a ready-made MAK MART picture plus a link that opens their shop.
-function ShareStoreCard({ vendor }) {
+// The address people should get in the link. On your own computer
+// (localhost) the live site address is used instead, so the link always works.
+const LIVE_SITE = "https://mak-mart-vcy2.vercel.app";
+
+function siteAddress() {
+  const origin = window.location.origin;
+  return /localhost|127\.0\.0\.1/.test(origin) ? LIVE_SITE : origin;
+}
+
+// Lets a vendor (shop) or a service provider (services) post on a WhatsApp
+// status or anywhere else: a ready-made MAK MART picture plus a link.
+function ShareStoreCard({ vendor: shop, provider }) {
+  const isService = Boolean(provider);
+  const vendor = provider || shop;
   const [poster, setPoster] = useState(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const link = useMemo(
-    () =>
-      vendor?.id
-        ? `${window.location.origin}/marketplace/vendors/${vendor.id}?ref=status`
-        : "",
-    [vendor?.id]
-  );
+  const link = vendor?.id
+    ? isService
+      ? `${siteAddress()}/providers/${vendor.id}?ref=status`
+      : `${siteAddress()}/marketplace/vendors/${vendor.id}?ref=status`
+    : "";
 
   const caption = vendor
-    ? `🛍️ Shop ${vendor.business_name} on MAK MART, Makerere's student marketplace.\nTap to see my products 👇\n${link}`
+    ? isService
+      ? `🛠️ ${vendor.business_name} on MAK MART, Makerere's student marketplace.\nTap to see my services and request one 👇\n${link}`
+      : `🛍️ Shop ${vendor.business_name} on MAK MART, Makerere's student marketplace.\nTap to see my products 👇\n${link}`
     : "";
 
   useEffect(() => {
@@ -28,27 +39,36 @@ function ShareStoreCard({ vendor }) {
     let alive = true;
     makeSharePoster({
       shopName: vendor.business_name,
-      shopLogoUrl: vendor.logo_url,
+      shopLogoUrl: isService
+        ? vendor.profile_image_url || vendor.logo_url
+        : vendor.logo_url,
+      tagline: isService
+        ? "Book my services on MAK MART"
+        : "Shop my products on MAK MART",
+      footer: isService
+        ? "Trusted student services. Support students."
+        : "Buy from students. Support students.",
+      fallbackName: isService ? "My services" : "My shop",
     })
       .then((result) => alive && setPoster(result))
       .catch(() => alive && setPoster(null));
     return () => {
       alive = false;
     };
-  }, [vendor?.id, vendor?.business_name, vendor?.logo_url]);
+  }, [vendor?.id, vendor?.business_name, vendor?.logo_url, vendor?.profile_image_url, isService]);
 
   if (!vendor) return null;
 
-  const fileName = `${(vendor.business_name || "my-shop")
+  const fileName = `${(vendor.business_name || "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")}-mak-mart.png`;
+    .replace(/^-|-$/g, "") || (isService ? "my-services" : "my-shop")}-mak-mart.png`;
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(link);
     } catch {
-      window.prompt("Copy your shop link:", link);
+      window.prompt("Copy your link:", link);
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -97,20 +117,21 @@ function ShareStoreCard({ vendor }) {
   return (
     <div className="share-store">
       <div className="share-store__text">
-        <h3>Share your market</h3>
+        <h3>{isService ? "Share your services" : "Share your market"}</h3>
         <p>
-          Post your shop on your WhatsApp status. Customers tap the link and
-          land straight on your products.
+          {isService
+            ? "Post your services on your WhatsApp status. People tap the link and land straight on your services page."
+            : "Post your shop on your WhatsApp status. Customers tap the link and land straight on your products."}
         </p>
 
         {!vendor.is_active && (
           <p className="share-store__note">
-            Your link starts working as soon as the admin approves your store.
+            {isService ? "Your link starts working as soon as the admin approves your account." : "Your link starts working as soon as the admin approves your store."}
           </p>
         )}
 
         <div className="share-store__link">
-          <input value={link} readOnly aria-label="Your shop link" onFocus={(e) => e.target.select()} />
+          <input value={link} readOnly aria-label="Your link" onFocus={(e) => e.target.select()} />
           <button type="button" onClick={copyLink} title="Copy link">
             {copied ? <Check size={16} /> : <Copy size={16} />}
             {copied ? "Copied" : "Copy"}

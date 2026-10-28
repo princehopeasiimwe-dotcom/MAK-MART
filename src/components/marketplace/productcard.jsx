@@ -6,6 +6,7 @@ import { useCart } from "../../context/CartContext";
 import useWishlist from "../../hooks/useWishlist";
 import useRatings from "../../hooks/useRatings";
 import { StarRating } from "../common/Stars";
+import { isOnPromo, discountPercent } from "../../lib/promo";
 
 function isNew(dateString) {
   if (!dateString) return false;
@@ -36,8 +37,13 @@ function ProductCard({ product }) {
   const soldOut = product?.is_available === false || stock === 0;
   const lowStock = !soldOut && typeof stock === "number" && stock <= 5;
 
+  const onPromo = !soldOut && isOnPromo(product);
+  const off = onPromo ? discountPercent(product) : 0;
+
   const badge = soldOut
     ? "Sold out"
+    : onPromo
+    ? `-${off}%`
     : product?.is_featured
     ? (
         <>
@@ -83,7 +89,11 @@ function ProductCard({ product }) {
           )}
         </Link>
 
-        {badge && <span className="mm-card__badge">{badge}</span>}
+        {badge && (
+          <span className={`mm-card__badge ${onPromo ? "mm-card__badge--promo" : ""}`}>
+            {badge}
+          </span>
+        )}
 
         <button
           type="button"
@@ -122,7 +132,18 @@ function ProductCard({ product }) {
           size={14}
         />
 
-        <p className="mm-card__price">{formatCurrency(product?.price || 0)}</p>
+        {onPromo ? (
+          <div className="mm-card__pricebox">
+            <s className="mm-card__oldprice" aria-label="Old price">
+              {formatCurrency(product.compare_at_price)}
+            </s>
+            <p className="mm-card__price mm-card__price--promo">
+              {formatCurrency(product?.price || 0)}
+            </p>
+          </div>
+        ) : (
+          <p className="mm-card__price">{formatCurrency(product?.price || 0)}</p>
+        )}
 
         <p className="mm-card__vendor">
           <Store size={16} aria-hidden="true" />

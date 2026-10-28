@@ -6,6 +6,8 @@ import ErrorMessage from "../common/ErrorMessage";
 import ImageUploadField from "../common/ImageUploadField";
 import CategoryPicker from "../common/CategoryPicker";
 import ProductService from "../../services/ProductService";
+import { discountPercent, endOfDayIso, dateInputValue } from "../../lib/promo";
+import { formatCurrency } from "../../utils/currency";
 
 const initialForm = {
   name: "",
@@ -15,7 +17,15 @@ const initialForm = {
   condition: "new",
   category_id: "",
   image_url: "",
+  promo_on: false,
+  promo_price: "",
+  promo_ends: "",
 };
+
+// A product on promotion keeps its OLD price in compare_at_price and the
+// price customers pay now in price. The form shows them as
+// "normal price" + "promotion price", which is easier to understand.
+const roundMoney = (value) => String(Math.round(Number(value)));
 
 function ProductForm({
   initialData = null,
@@ -27,7 +37,18 @@ function ProductForm({
       ? {
           name: initialData.name || "",
           description: initialData.description || "",
-          price: initialData.price ? String(Math.round(Number(initialData.price))) : "",
+          price:
+            Number(initialData.compare_at_price) > Number(initialData.price)
+              ? roundMoney(initialData.compare_at_price)
+              : initialData.price
+              ? roundMoney(initialData.price)
+              : "",
+          promo_on: Number(initialData.compare_at_price) > Number(initialData.price),
+          promo_price:
+            Number(initialData.compare_at_price) > Number(initialData.price)
+              ? roundMoney(initialData.price)
+              : "",
+          promo_ends: dateInputValue(initialData.promo_ends_at),
           stock_quantity:
             initialData.stock_quantity ?? "1",
           condition: initialData.condition || "new",
@@ -82,6 +103,28 @@ function ProductForm({
       return;
     }
 
+    const regular = parseMoney(form.price);
+    const promo = form.promo_on ? parseMoney(form.promo_price) : 0;
+
+    if (form.promo_on) {
+      if (!promo) {
+        setError("Enter the promotion price.");
+        return;
+      }
+      if (promo >= regular) {
+        setError("The promotion price must be lower than the normal price.");
+        return;
+      }
+      if (promo < regular * 0.1) {
+        setError("A promotion can be at most 90% off.");
+        return;
+      }
+      if (form.promo_ends && endOfDayIso(form.promo_ends) <= new Date().toISOString()) {
+        setError("The promotion end date must be today or later.");
+        return;
+      }
+    }
+
     setSaving(true);
 
     try {
@@ -89,7 +132,10 @@ function ProductForm({
         {
           name: form.name,
           description: form.description,
-          price: parseMoney(form.price),
+          price: form.promo_on ? promo : regular,
+          compare_at_price: form.promo_on ? regular : null,
+          promo_ends_at:
+            form.promo_on && form.promo_ends ? endOfDayIso(form.promo_ends) : null,
           stock_quantity: Number(form.stock_quantity) || 0,
           condition: form.condition,
           category_id: form.category_id,
@@ -172,7 +218,7 @@ function ProductForm({
 
       <div className="form-group">
         <label htmlFor="price">
-          Price (UGX)
+          {form.promo_on ? "Normal price (UGX), shown crossed out" : "Price (UGX)"}
         </label>
 
         <MoneyInput
@@ -183,6 +229,61 @@ function ProductForm({
           placeholder="35,000"
         />
         <p className="field-hint">You can type it with commas, like 35,000, or as 35k.</p>
+      </div>
+
+      <div className="form-group promo-box">
+        <label className="promo-box__toggle">
+          <input
+            type="checkbox"
+            checked={form.promo_on}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, promo_on: event.target.checked }))
+            }
+          />
+          <span>Put this product on promotion (Black November deal)</span>
+        </label>
+
+        {form.promo_on && (
+          <>
+            <label htmlFor="promo_price">Promotion price (UGX)</label>
+            <MoneyInput
+              id="promo_price"
+              name="promo_price"
+              value={form.promo_price}
+              onChange={handleChange}
+              placeholder="25,000"
+            />
+
+            <label htmlFor="promo_ends">Promotion ends on (optional)</label>
+            <input
+              id="promo_ends"
+              name="promo_ends"
+              type="date"
+              value={form.promo_ends}
+              onChange={handleChange}
+            />
+            <p className="field-hint">
+              On that date the product goes back to its normal price by itself.
+              Leave it empty to end the promotion yourself later.
+            </p>
+
+            {parseMoney(form.price) > 0 &&
+              parseMoney(form.promo_price) > 0 &&
+              parseMoney(form.promo_price) < parseMoney(form.price) && (
+                <p className="promo-box__preview">
+                  Customers will see{" "}
+                  <s>{formatCurrency(parseMoney(form.price))}</s>{" "}
+                  <strong>{formatCurrency(parseMoney(form.promo_price))}</strong>{" "}
+                  <span>
+                    (-{discountPercent({
+                      price: parseMoney(form.promo_price),
+                      compare_at_price: parseMoney(form.price),
+                    })}%)
+                  </span>
+                </p>
+              )}
+          </>
+        )}
       </div>
 
       <div className="form-group">
