@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { endExpiredPromotions } from "../lib/promo";
 
 const PRODUCT_SELECT = `
   *,
@@ -39,6 +40,9 @@ function withPrimaryImage(product) {
 
 const ProductService = {
   async getProducts(options = {}) {
+    // promotions whose time has passed go back to their old price first
+    await endExpiredPromotions();
+
     let query = supabase
       .from("products")
       .select(PRODUCT_SELECT)
