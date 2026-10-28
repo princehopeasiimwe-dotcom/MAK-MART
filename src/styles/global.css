@@ -1298,6 +1298,13 @@ img {
   gap: 6px;
 }
 
+.event-description {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
 /* =========================================================
    SERVICES GRID / SERVICE CARD EXTRAS
 ========================================================= */

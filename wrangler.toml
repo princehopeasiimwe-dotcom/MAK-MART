@@ -1,0 +1,25 @@
+# Cloudflare Workers Configuration for R2 Presigned URLs
+# Deploy with: npx wrangler deploy
+
+name = "mak-mart-r2-upload"
+main = "src/workers/r2-upload.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables (set via `wrangler secret put`)
+# ALLOWED_ORIGIN = "https://your-frontend-domain.com"
+
+[vars]
+
+# R2 Bucket Binding - uses native R2 API (no AWS SDK needed)
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "mak-mart-uploads"
+
+# Custom domain (optional)
+# routes = [
+#   { pattern = "api.yourdomain.com/upload/*", zone_name = "yourdomain.com" }
+# ]
+
+# Build
+[build]
+command = "echo 'No build step needed'"
