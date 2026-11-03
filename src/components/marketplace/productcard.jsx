@@ -126,24 +126,26 @@ function ProductCard({ product }) {
           <h3>{product?.name || "Unnamed product"}</h3>
         </Link>
 
-        <StarRating
-          value={productStats.get(productId)?.rating_avg ?? vendorStats.get(product?.vendor_id)?.rating_avg}
-          count={productStats.get(productId)?.rating_count ?? vendorStats.get(product?.vendor_id)?.rating_count}
-          size={14}
-        />
+        <div className="mm-card__rating">
+          <StarRating
+            value={productStats.get(productId)?.rating_avg ?? vendorStats.get(product?.vendor_id)?.rating_avg}
+            count={productStats.get(productId)?.rating_count ?? vendorStats.get(product?.vendor_id)?.rating_count}
+            size={14}
+          />
+        </div>
 
-        {onPromo ? (
-          <div className="mm-card__pricebox">
+        <div className="mm-card__pricebox">
+          {onPromo ? (
             <s className="mm-card__oldprice" aria-label="Old price">
               {formatCurrency(product.compare_at_price)}
             </s>
-            <p className="mm-card__price mm-card__price--promo">
-              {formatCurrency(product?.price || 0)}
-            </p>
-          </div>
-        ) : (
-          <p className="mm-card__price">{formatCurrency(product?.price || 0)}</p>
-        )}
+          ) : (
+            <span className="mm-card__oldprice mm-card__oldprice--blank" aria-hidden="true">&nbsp;</span>
+          )}
+          <p className={`mm-card__price ${onPromo ? "mm-card__price--promo" : ""}`}>
+            {formatCurrency(product?.price || 0)}
+          </p>
+        </div>
 
         <p className="mm-card__vendor">
           <Store size={16} aria-hidden="true" />
