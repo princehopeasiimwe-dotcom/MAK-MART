@@ -10,6 +10,7 @@ import {
   BarChart3,
   Wrench,
   MessageSquare,
+  Receipt,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import useUnreadMessages from "../hooks/useUnreadMessages";
@@ -72,6 +73,11 @@ function VendorLayout() {
             <MessageSquare size={19} />
             Messages
             {unread > 0 && <span className="nav-badge" aria-label={`${unread} unread`}>{unread}</span>}
+          </NavLink>
+
+          <NavLink to="/vendor/sales">
+            <Receipt size={19} />
+            Sales report
           </NavLink>
 
           <NavLink to="/vendor/insights">
