@@ -28,6 +28,7 @@ function VendorProducts() {
     useState(null);
 
   const [limit, setLimit] = useState(0);
+  const [lowStockAt, setLowStockAt] = useState(3);
 
   useEffect(() => {
     SettingsService.getSetting("max_products_per_vendor")
@@ -37,6 +38,19 @@ function VendorProducts() {
       })
       .catch(() => setLimit(0));
   }, []);
+
+  useEffect(() => {
+    SettingsService.getSetting("low_stock_threshold")
+      .then((value) => {
+        const n = parseInt(value, 10);
+        if (Number.isFinite(n) && n >= 0) setLowStockAt(n);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleRestock = async (product, quantity) => {
+    await updateProduct(product.id, { stock_quantity: quantity });
+  };
 
   const handleAdd = () => {
     setSelectedProduct(null);
@@ -106,6 +120,8 @@ function VendorProducts() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         limit={limit}
+        lowStockAt={lowStockAt}
+        onRestock={handleRestock}
       />
 
       <Modal
