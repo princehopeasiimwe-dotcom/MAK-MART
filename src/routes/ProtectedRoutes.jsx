@@ -3,7 +3,7 @@ import useAuth from "../hooks/useAuth";
 import Loader from "../components/common/loader";
 
 function ProtectedRoute({ children, allowedRoles = [] }) {
-  const { user, profile, isAdmin, loading } = useAuth();
+  const { user, profile, isAdmin, isVendor, isServiceProvider, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -36,13 +36,20 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
     return <Navigate to="/" replace />;
   }
 
-  // If the profile failed to load, or the role isn't allowed here,
-  // keep the user out (fail closed).
-  if (
-    allowedRoles.length > 0 &&
-    !allowedRoles.includes(profile?.role)
-  ) {
-    return <Navigate to="/" replace />;
+  // What this account can do comes from what it actually owns (a vendors /
+  // service_providers row), not just the single profile.role label. One
+  // account can be a vendor AND a service provider, and the label drifts out
+  // of sync (or is briefly empty if the profile fetch was slow), which used
+  // to lock real vendors/providers out of their own dashboard.
+  if (allowedRoles.length > 0) {
+    const roles = new Set();
+    if (profile?.role) roles.add(profile.role);
+    if (isVendor) roles.add("vendor");
+    if (isServiceProvider) roles.add("service_provider");
+
+    if (!allowedRoles.some((role) => roles.has(role))) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;
