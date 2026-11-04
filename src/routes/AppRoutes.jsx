@@ -40,6 +40,8 @@ const ProviderInsights = lazy(() => import("../pages/provider/ProviderInsights")
 const MessagesPage = lazy(() => import("../components/messages/MessagesPanel"));
 const MessagesRedirect = lazy(() => import("../pages/MessagesRedirect"));
 const VendorInsights = lazy(() => import("../pages/vendor/VendorInsights"));
+const AdminComplaints = lazy(() => import("../pages/admin/AdminComplaints"));
+const VendorSales = lazy(() => import("../pages/vendor/VendorSales"));
 const AdminReviews = lazy(() => import("../pages/admin/AdminReviews"));
 const AdminFixListings = lazy(() => import("../pages/admin/AdminFixListings"));
 const AdminSponsors = lazy(() => import("../pages/admin/AdminSponsors"));
@@ -167,6 +169,11 @@ function AppRoutes() {
         />
 
         <Route
+          path="sales"
+          element={<VendorSales />}
+        />
+
+        <Route
           path="insights"
           element={<VendorInsights />}
         />
@@ -232,6 +239,11 @@ function AppRoutes() {
           element={<AdminProducts />}
         />
         
+        <Route
+          path="complaints"
+          element={<AdminComplaints />}
+        />
+
         <Route
           path="settings"
           element={<AdminSettings />}

@@ -16,6 +16,8 @@ import ShareStoreCard from "../../components/vendor/ShareStoreCard";
 function VendorDashboard() {
   const { user, vendor } = useAuth();
 
+  const [lowStock, setLowStock] = useState(0);
+
   const [stats, setStats] = useState({
     products: 0,
     events: 0,
@@ -67,6 +69,14 @@ function VendorDashboard() {
     };
 
     loadStats();
+
+    supabase
+      .from("products")
+      .select("id, stock_quantity")
+      .eq("vendor_id", vendor.id)
+      .not("stock_quantity", "is", null)
+      .lte("stock_quantity", 3)
+      .then(({ data }) => setLowStock(data?.length || 0));
   }, [vendor?.id, user?.id]);
 
   const statusLabel = !vendor
@@ -96,6 +106,12 @@ function VendorDashboard() {
           Your store is awaiting admin approval. Your
           products won't appear publicly until then.
         </div>
+      )}
+
+      {lowStock > 0 && (
+        <Link to="/vendor/products" className="low-stock-banner">
+          {lowStock === 1 ? "1 product is" : `${lowStock} products are`} low or sold out. Tap to restock →
+        </Link>
       )}
 
       <ShareStoreCard vendor={vendor} />

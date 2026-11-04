@@ -25,6 +25,7 @@ import usePageSeo from "../../hooks/usePageSeo";
 import useRatings from "../../hooks/useRatings";
 import { StarRating } from "../../components/common/Stars";
 import { trackProductView } from "../../lib/analytics";
+import ReportButton from "../../components/common/ReportButton";
 
 function ProductDetails() {
   const { productId } = useParams();
@@ -174,6 +175,8 @@ function ProductDetails() {
               Add to cart
             </button>
           </div>
+
+          <ReportButton type="product" id={product.id} label="Report this product" />
         </div>
       </div>
 

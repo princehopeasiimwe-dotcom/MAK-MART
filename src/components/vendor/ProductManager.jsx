@@ -1,4 +1,5 @@
-import { Plus } from "lucide-react";
+import { useState } from "react";
+import { Plus, TriangleAlert } from "lucide-react";
 import { formatCurrency } from "../../utils/currency";
 import { isOnPromo, discountPercent, promoEndsLabel } from "../../lib/promo";
 
@@ -9,7 +10,31 @@ function ProductManagement({
   onEdit,
   onDelete,
   limit = 0,
+  lowStockAt = 3,
+  onRestock,
 }) {
+  const [restockId, setRestockId] = useState(null);
+  const [restockQty, setRestockQty] = useState("");
+  const [restockError, setRestockError] = useState("");
+  const isLow = (p) => typeof p.stock_quantity === "number" && p.stock_quantity <= lowStockAt;
+  const lowCount = products.filter(isLow).length;
+
+  const saveRestock = async (product) => {
+    const qty = parseInt(restockQty, 10);
+    if (!Number.isFinite(qty) || qty < 0 || qty > 100000) {
+      setRestockError("Enter a number from 0 to 100000.");
+      return;
+    }
+    try {
+      await onRestock?.(product, qty);
+      setRestockId(null);
+      setRestockQty("");
+      setRestockError("");
+    } catch (err) {
+      setRestockError(err.message || "Could not update the stock.");
+    }
+  };
+
   const atLimit = limit > 0 && products.length >= limit;
   return (
     <div className="dashboard-page">
@@ -38,6 +63,13 @@ function ProductManagement({
         </p>
       )}
 
+      {lowCount > 0 && (
+        <div className="low-stock-banner" role="status">
+          <TriangleAlert size={18} aria-hidden="true" />
+          {lowCount === 1 ? "1 product is" : `${lowCount} products are`} low or sold out. Restock below so you do not miss sales.
+        </div>
+      )}
+
       {loading ? (
         <p>Loading products...</p>
       ) : !products.length ? (
@@ -63,6 +95,11 @@ function ProductManagement({
               <div className="vendor-product-info">
                 <h3>{product.name}</h3>
                 <p>{product.categories?.name || "Uncategorized"}</p>
+                {typeof product.stock_quantity === "number" && (
+                  <span className={`vendor-stock ${product.stock_quantity === 0 ? "is-out" : isLow(product) ? "is-low" : ""}`}>
+                    {product.stock_quantity === 0 ? "Sold out" : isLow(product) ? `Only ${product.stock_quantity} left` : `${product.stock_quantity} in stock`}
+                  </span>
+                )}
                 {isOnPromo(product) ? (
                   <>
                     <s className="vendor-oldprice">
@@ -82,6 +119,32 @@ function ProductManagement({
               </div>
 
               <div className="vendor-product-actions">
+                {onRestock && typeof product.stock_quantity === "number" && (
+                  restockId === product.id ? (
+                    <span className="restock-inline">
+                      <input
+                        type="number"
+                        min="0"
+                        inputMode="numeric"
+                        value={restockQty}
+                        onChange={(e) => setRestockQty(e.target.value)}
+                        aria-label={`New stock for ${product.name}`}
+                        placeholder="New stock"
+                      />
+                      <button type="button" onClick={() => saveRestock(product)}>Save</button>
+                      <button type="button" onClick={() => { setRestockId(null); setRestockError(""); }}>Cancel</button>
+                      {restockError && <small className="form-error">{restockError}</small>}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setRestockId(product.id); setRestockQty(String(product.stock_quantity)); setRestockError(""); }}
+                    >
+                      Restock
+                    </button>
+                  )
+                )}
+
                 <button
                   type="button"
                   onClick={() => onEdit?.(product)}

@@ -13,6 +13,7 @@ import ServiceRequestModal from "../../components/services/ServiceRequestModal";
 import { trackServiceView } from "../../lib/analytics";
 
 import usePageSeo from "../../hooks/usePageSeo";
+import ReportButton from "../../components/common/ReportButton";
 
 function ServiceDetails() {
   const { serviceId } = useParams();
@@ -87,6 +88,8 @@ function ServiceDetails() {
               Request this service
             </button>
           )}
+
+          <ReportButton type="service" id={service.id} label="Report this service" />
         </div>
       </div>
 

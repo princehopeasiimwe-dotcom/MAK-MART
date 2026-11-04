@@ -3,6 +3,7 @@ import useAuth from "../../hooks/useAuth";
 import { Minus, Plus, MessageCircle } from "lucide-react";
 
 import Modal from "../common/modal";
+import PayLaterNotice from "./PayLaterNotice";
 import ErrorMessage from "../common/ErrorMessage";
 import { formatCurrency } from "../../utils/currency";
 import { openWhatsApp, createProductOrderMessage } from "../../lib/whatsapp";
@@ -194,6 +195,8 @@ function OrderModal({ product, isOpen, onClose }) {
             placeholder="Any special request..."
           />
         </div>
+
+        <PayLaterNotice />
 
         <button
           type="submit"

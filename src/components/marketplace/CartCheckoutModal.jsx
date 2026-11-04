@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 
 import Modal from "../common/modal";
+import PayLaterNotice from "./PayLaterNotice";
 import ErrorMessage from "../common/ErrorMessage";
 import { formatCurrency } from "../../utils/currency";
 import { openWhatsApp, createCartOrderMessage } from "../../lib/whatsapp";
@@ -167,6 +168,8 @@ function CartCheckoutModal({
             placeholder="Any special request..."
           />
         </div>
+
+        <PayLaterNotice />
 
         <button
           type="submit"

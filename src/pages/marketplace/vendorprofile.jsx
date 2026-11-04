@@ -11,6 +11,7 @@ import Loader from "../../components/common/loader";
 import usePageSeo from "../../hooks/usePageSeo";
 import useRatings from "../../hooks/useRatings";
 import { StarRating } from "../../components/common/Stars";
+import ReportButton from "../../components/common/ReportButton";
 
 function VendorProfile() {
   const { vendorId } = useParams();
@@ -100,6 +101,8 @@ function VendorProfile() {
             {vendor.description ||
               "Student entrepreneur at Makerere University."}
           </p>
+
+          <ReportButton type="vendor" id={vendor.id} label="Report this shop" />
         </div>
       </div>
 

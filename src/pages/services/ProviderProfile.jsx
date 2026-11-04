@@ -12,6 +12,7 @@ import { rankServices } from "../../lib/ranking";
 import SignInToOrder from "../../components/marketplace/SignInToOrder";
 
 import usePageSeo from "../../hooks/usePageSeo";
+import ReportButton from "../../components/common/ReportButton";
 
 function ProviderProfile() {
   const { providerId } = useParams();
@@ -122,6 +123,8 @@ function ProviderProfile() {
       ) : (
         <p>Professional services available around campus.</p>
       )}
+
+      <ReportButton type="provider" id={provider.id} label="Report this provider" />
 
       <div className="product-card-actions">
         {whatsappLink && user && (

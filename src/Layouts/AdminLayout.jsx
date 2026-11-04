@@ -13,6 +13,7 @@ import {
   LogOut,
   Star,
   MessageSquare,
+  Flag,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import useUnreadMessages from "../hooks/useUnreadMessages";
@@ -81,6 +82,11 @@ function AdminLayout() {
             <MessageSquare size={19} />
             Messages
             {unread > 0 && <span className="nav-badge" aria-label={`${unread} unread`}>{unread}</span>}
+          </NavLink>
+
+          <NavLink to="/admin/complaints">
+            <Flag size={19} />
+            Complaints
           </NavLink>
 
           <NavLink to="/admin/reviews">
