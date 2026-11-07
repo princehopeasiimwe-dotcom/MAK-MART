@@ -8,12 +8,13 @@ import { openWhatsApp } from "../../lib/whatsapp";
 
 // Signed-in customer asks for a service: we record the request (so it can be
 // tracked, confirmed and rated), then open WhatsApp to chat with the provider.
-function ServiceRequestModal({ service, provider, isOpen, onClose }) {
+function ServiceRequestModal({ service, provider, packages = [], initialPackageId = "", isOpen, onClose }) {
   const { profile } = useAuth();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
+  const [packageId, setPackageId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -25,9 +26,14 @@ function ServiceRequestModal({ service, provider, isOpen, onClose }) {
 
   if (!service) return null;
 
+  const activeId = packageId || initialPackageId;
+  const chosen = packages.find((p) => p.id === activeId) || null;
+  const shownPrice = chosen ? chosen.price : service.price;
+
   const handleClose = () => {
     setLocation("");
     setNotes("");
+    setPackageId("");
     setError("");
     onClose?.();
   };
@@ -38,6 +44,7 @@ function ServiceRequestModal({ service, provider, isOpen, onClose }) {
 
     if (!name.trim()) return setError("Please enter your name.");
     if (!phone.trim()) return setError("Please enter your phone number.");
+    if (packages.length > 0 && !chosen) return setError("Please choose one of the packages.");
     if (!provider?.phone) return setError("This provider has no contact number on file yet.");
 
     setSubmitting(true);
@@ -46,13 +53,14 @@ function ServiceRequestModal({ service, provider, isOpen, onClose }) {
         serviceId: service.id,
         notes: notes.trim(),
         location: location.trim(),
+        packageId: chosen?.id,
       });
 
       openWhatsApp(
         provider.phone,
         `Hello ${provider.business_name || ""}, I'd like to request a service on MAK MART.
 
-Service: ${service.name}${service.price != null ? `\nPrice: ${formatCurrency(service.price)}` : ""}
+Service: ${service.name}${chosen ? `\nPackage: ${chosen.name}${chosen.unit ? ` (${chosen.unit})` : ""}` : ""}${shownPrice != null ? `\nPrice: ${formatCurrency(shownPrice)}` : ""}
 
 Name: ${name.trim()}
 Phone: ${phone.trim()}${location.trim() ? `\nWhere: ${location.trim()}` : ""}${notes.trim() ? `\nDetails: ${notes.trim()}` : ""}`
@@ -71,13 +79,28 @@ Phone: ${phone.trim()}${location.trim() ? `\nWhere: ${location.trim()}` : ""}${n
       <div className="order-modal__product">
         <div>
           <strong>{service.name}</strong>
-          <span>{service.price != null ? formatCurrency(service.price) : "Price agreed with the provider"}</span>
+          <span>{shownPrice != null ? formatCurrency(shownPrice) : packages.length ? "Choose a package below" : "Price agreed with the provider"}</span>
         </div>
       </div>
 
       {error && <ErrorMessage message={error} onClose={() => setError("")} />}
 
       <form onSubmit={handleSubmit}>
+        {packages.length > 0 && (
+          <fieldset className="package-pick">
+            <legend>Choose a package</legend>
+            {packages.map((p) => (
+              <label key={p.id} className={`package-pick__item${p.id === activeId ? " is-selected" : ""}`}>
+                <input type="radio" name="package" value={p.id} checked={p.id === activeId} onChange={() => setPackageId(p.id)} />
+                <span>
+                  <strong>{p.name}</strong>
+                  {p.description && <small>{p.description}</small>}
+                </span>
+                <em>{formatCurrency(p.price)}{p.unit ? ` ${p.unit}` : ""}</em>
+              </label>
+            ))}
+          </fieldset>
+        )}
         <div className="form-group">
           <label htmlFor="sr-name">Your name</label>
           <input id="sr-name" value={name} onChange={(e) => setName(e.target.value)} required />

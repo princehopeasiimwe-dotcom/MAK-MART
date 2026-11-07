@@ -42,7 +42,7 @@ function ServiceManager({
                 <p>{service.service_categories?.name || "Uncategorized"}</p>
                 <strong>
                   {service.price != null
-                    ? formatCurrency(service.price)
+                    ? `${service.has_packages ? "From " : ""}${formatCurrency(service.price)}`
                     : "Price varies"}
                 </strong>
               </div>

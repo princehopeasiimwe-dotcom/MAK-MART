@@ -3,6 +3,8 @@ import MoneyInput from "../common/MoneyInput";
 import { parseMoney } from "../../utils/money";
 import ImageUploadField from "../common/ImageUploadField";
 import ErrorMessage from "../common/ErrorMessage";
+import PackageEditor from "./PackageEditor";
+import { newPackageRow } from "./packageRows";
 
 const emptyForm = {
   name: "",
@@ -17,8 +19,10 @@ const emptyForm = {
 function ServiceForm({
   initialData = null,
   categories = [],
+  initialPackages = [],
   onSubmit,
 }) {
+  const [packageRows, setPackageRows] = useState(() => initialPackages.map(newPackageRow));
   const [form, setForm] = useState(
     initialData
       ? {
@@ -52,6 +56,26 @@ function ServiceForm({
       return;
     }
 
+    const cleanedPackages = [];
+    for (const row of packageRows) {
+      const blank = !row.name.trim() && !row.price && !row.unit.trim() && !row.description.trim();
+      if (blank) continue;
+      if (!row.name.trim()) {
+        setError("Every package needs a name.");
+        return;
+      }
+      if (row.price === "" || parseMoney(row.price) === null) {
+        setError(`Add a price for "${row.name.trim()}".`);
+        return;
+      }
+      cleanedPackages.push({
+        name: row.name.trim(),
+        price: parseMoney(row.price),
+        unit: row.unit.trim() || null,
+        description: row.description.trim() || null,
+      });
+    }
+
     if (form.price !== "" && parseMoney(form.price) === null) {
       setError("Price cannot be negative.");
       return;
@@ -63,12 +87,12 @@ function ServiceForm({
       await onSubmit({
         name: form.name.trim(),
         description: form.description.trim() || null,
-        price: form.price === "" ? null : parseMoney(form.price),
+        price: cleanedPackages.length || form.price === "" ? null : parseMoney(form.price),
         location: form.location.trim() || null,
         category_id: form.category_id || null,
         is_available: form.is_available,
         image_url: form.image_url || null,
-      });
+      }, cleanedPackages);
     } catch (err) {
       setError(err.message || "Could not save the service.");
     } finally {
@@ -104,10 +128,14 @@ function ServiceForm({
         </select>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="svc-price">Price (UGX, leave empty if it varies)</label>
-        <MoneyInput id="svc-price" name="price" value={form.price} onChange={handleChange} placeholder="e.g. 20,000" />
-      </div>
+      {packageRows.length === 0 && (
+        <div className="form-group">
+          <label htmlFor="svc-price">Price (UGX, leave empty if it varies)</label>
+          <MoneyInput id="svc-price" name="price" value={form.price} onChange={handleChange} placeholder="e.g. 20,000" />
+        </div>
+      )}
+
+      <PackageEditor rows={packageRows} onChange={setPackageRows} />
 
       <div className="form-group">
         <label htmlFor="svc-location">Location</label>

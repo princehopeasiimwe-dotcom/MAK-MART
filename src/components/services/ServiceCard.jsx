@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import useRatings from "../../hooks/useRatings";
+import { formatCurrency } from "../../utils/currency";
 
 function ServiceCard({ service }) {
   const { serviceStats, providerStats } = useRatings();
@@ -89,6 +90,12 @@ function ServiceCard({ service }) {
             </span>
           )}
         </div>
+
+        <strong className="service-card__price">
+          {service.price != null
+            ? `${service.has_packages ? "From " : ""}${formatCurrency(service.price)}`
+            : "Price agreed with provider"}
+        </strong>
 
         <span className="service-card__action">
           View service
