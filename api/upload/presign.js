@@ -1,88 +1,3 @@
-<<<<<<< HEAD
-// Cloudflare Worker / Vercel / Netlify Function for R2 Presigned URLs
-// Deploy this as a serverless function at /api/upload/presign
-
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
-// Environment variables (set in your platform's dashboard)
-const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
-const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
-const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
-const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "mak-mart";
-
-const r2Client = new S3Client({
-  region: "auto",
-  endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY_ID,
-    secretAccessKey: R2_SECRET_ACCESS_KEY,
-  },
-});
-
-// Allowed folders for security
-const ALLOWED_FOLDERS = [
-  "products",
-  "events",
-  "services",
-  "vendors",
-  "providers",
-  "users",
-  "chat",
-  "temp",
-];
-
-export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN || "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  try {
-    const { key, contentType, expiresIn = 3600 } = req.body;
-
-    // Validate key format (must be in allowed folder)
-    const folder = key.split("/")[0];
-    if (!ALLOWED_FOLDERS.includes(folder)) {
-      return res.status(400).json({ error: "Invalid folder" });
-    }
-
-    // Validate content type
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-      "application/pdf",
-    ];
-    if (!allowedTypes.includes(contentType)) {
-      return res.status(400).json({ error: "File type not allowed" });
-    }
-
-    // Generate presigned URL for PUT (upload)
-    const command = new PutObjectCommand({
-      Bucket: R2_BUCKET_NAME,
-      Key: key,
-      ContentType: contentType,
-      CacheControl: "public, max-age=31536000, immutable",
-    });
-
-    const presignedUrl = await getSignedUrl(r2Client, command, { expiresIn });
-
-    return res.status(200).json({ presignedUrl, key });
-  } catch (error) {
-    console.error("Presign error:", error);
-    return res.status(500).json({ error: "Failed to generate presigned URL" });
-  }
-=======
 /* global process */
 // Vercel serverless function: /api/upload/presign
 // Gives a signed-in user a short-lived link to upload ONE picture into their
@@ -119,6 +34,26 @@ async function getUserId(req) {
     return user?.id || null;
   } catch {
     return null;
+  }
+}
+
+// Upload allowance: 40 pictures an hour and 200 a day per person (see migration 033).
+// If that database update has not been run yet we let the upload through.
+async function withinUploadQuota(req) {
+  const token = (req.headers?.authorization || "").slice(7);
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  try {
+    const response = await fetch(`${url}/rest/v1/rpc/register_upload`, {
+      method: "POST",
+      headers: { apikey: anon, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: "{}",
+    });
+    if (response.status === 404) return true;
+    if (!response.ok) return false;
+    return (await response.json()) === true;
+  } catch {
+    return false;
   }
 }
 
@@ -163,6 +98,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Image is too large. Please pick one under 5MB." });
   }
 
+  if (!(await withinUploadQuota(req))) {
+    return res.status(429).json({ error: "You have uploaded a lot of pictures. Please try again later." });
+  }
+
   const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY } = process.env;
   if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
     return res.status(500).json({ error: "Photo storage is not set up yet." });
@@ -195,5 +134,4 @@ export default async function handler(req, res) {
     console.error("Presign error:", error);
     return res.status(500).json({ error: "Could not start the upload." });
   }
->>>>>>> d5ed451529c399ba727011d6c30f66493661bcbf
 }
