@@ -75,6 +75,13 @@ function ProviderLayout() {
           </NavLink>
         </nav>
 
+        {!isVendor && serviceProvider && (
+          <Link to="/provider/dashboard" className="dashboard-sidebar__signout dashboard-sidebar__home">
+            <Store size={18} />
+            Sell products too
+          </Link>
+        )}
+
         {isVendor && (
           <Link to="/vendor/dashboard" className="dashboard-sidebar__signout dashboard-sidebar__home">
             <ArrowLeft size={18} />

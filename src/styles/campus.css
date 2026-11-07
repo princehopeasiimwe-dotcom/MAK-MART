@@ -2291,3 +2291,27 @@ div.product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr
   .no-print, .dashboard-sidebar, .dashboard-topbar { display: none !important; }
   .dashboard-layout { display: block !important; }
 }
+/* ---------- service packages (pack 44) ---------- */
+.service-card__price{display:block;margin:6px 0 2px;font-size:.95rem;color:var(--mm-primary,#1a7f4b)}
+.package-editor{border:1px solid #e2e8e4;border-radius:12px;padding:12px;margin:12px 0;display:grid;gap:10px;min-width:0}
+.package-editor legend{font-weight:700;padding:0 6px}
+.package-editor .field-hint{margin:0;font-size:.85rem;color:#5b665f}
+.package-editor__templates{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.85rem}
+.package-editor .chip-button{border:1px solid #cfd8d2;background:#fff;border-radius:999px;padding:4px 10px;font-size:.8rem;cursor:pointer}
+.package-row{display:grid;gap:6px;padding:10px;border:1px solid #edf1ee;border-radius:10px;background:#fafcfb}
+.package-row input{width:100%;min-width:0;box-sizing:border-box}
+.package-row__top{display:flex;gap:6px;align-items:center}
+.package-row__mid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.package-row .icon-button{border:0;background:transparent;color:#b42318;cursor:pointer;padding:6px}
+.package-list{margin:14px 0;border:1px solid #e2e8e4;border-radius:12px;overflow:hidden}
+.package-list h2{font-size:1rem;margin:0;padding:10px 12px;background:#f3f7f4}
+.package-list__row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid #edf1ee}
+.package-list__row small{display:block;color:#5b665f}
+.package-list__price{font-weight:700;white-space:nowrap}
+.package-list__price small{display:inline;font-weight:400}
+@media (max-width:520px){.package-list__row{grid-template-columns:1fr auto}.package-list__row .secondary-button{grid-column:1/-1}}
+.package-pick{border:1px solid #e2e8e4;border-radius:12px;padding:8px;margin:0 0 12px;display:grid;gap:6px;min-width:0}
+.package-pick__item{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:8px;border-radius:8px;cursor:pointer}
+.package-pick__item.is-selected{background:#e8f5ee}
+.package-pick__item small{display:block;color:#5b665f}
+.package-pick__item em{font-style:normal;font-weight:700;white-space:nowrap}

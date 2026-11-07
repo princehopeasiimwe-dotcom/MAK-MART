@@ -1,4 +1,4 @@
-import { Outlet, NavLink, Link, Navigate, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -17,7 +17,7 @@ import useUnreadMessages from "../hooks/useUnreadMessages";
 import NotificationBell from "../components/common/NotificationBell";
 
 function VendorLayout() {
-  const { vendor, signOut, user, isAdmin } = useAuth();
+  const { vendor, signOut, user } = useAuth();
   const unread = useUnreadMessages(user?.id);
   const navigate = useNavigate();
 
@@ -111,7 +111,7 @@ function VendorLayout() {
           <NotificationBell />
         </div>
 
-        {vendor || isAdmin ? <Outlet /> : <Navigate to="/vendor/signup" replace />}
+        <Outlet />
       </main>
     </div>
   );
