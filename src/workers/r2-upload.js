@@ -1,3 +1,8 @@
+// NOT USED - do not deploy this Worker.
+// It calls env.BUCKET.createSignedUrl(), which does not exist in Cloudflare's R2
+// Worker API, so every upload through it fails. It also has no sign-in check.
+// Photos use the Vercel functions in /api/upload instead (see R2_SETUP.md).
+
 // Cloudflare Worker for R2 Presigned URLs & Deletion
 // Uses native R2 binding (env.BUCKET) - no AWS SDK needed
 // Deploy with: npx wrangler deploy

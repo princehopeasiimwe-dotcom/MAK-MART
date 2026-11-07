@@ -1,1 +1,0 @@
-import{i as e}from"./index-MRMvERgw.js";const o="mm_return_to";function c(t){if(e(t))try{localStorage.setItem(o,t)}catch{}}function l(t){let r=null;try{r=localStorage.getItem(o),localStorage.removeItem(o)}catch{}const n=e(t)?t:r;return e(n)?n:null}export{c as r,l as t};

@@ -1,4 +1,12 @@
 import { supabase } from "./supabase";
+import { uploadFile, getStorageProvider } from "../services/uploadService";
+
+// Which R2 folder each Supabase bucket name maps to.
+const R2_FOLDER_FOR_BUCKET = {
+  "product-images": "products",
+  "event-images": "events",
+  "vendor-images": "vendors",
+};
 
 // Phone photos are often 3-8MB. Shrink them in the browser first
 // (max 1600px on the long side, JPEG) so uploads are fast and cheap.
@@ -53,6 +61,15 @@ export async function uploadImage(bucket, file, userId) {
 
   if (file.size > maxSizeBytes) {
     throw new Error("Image is too large. Please pick one under 5MB.");
+  }
+
+  // Photos go to Cloudflare R2 when VITE_STORAGE_PROVIDER=r2 (10GB free), so
+  // Supabase only has to hold the database. Anything else uses Supabase Storage.
+  if (getStorageProvider() === "r2") {
+    return uploadFile(file, {
+      folder: R2_FOLDER_FOR_BUCKET[bucket] || "temp",
+      userId,
+    });
   }
 
   const fileExt = file.name.split(".").pop();

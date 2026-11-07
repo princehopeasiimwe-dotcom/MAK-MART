@@ -1,3 +1,24 @@
+# MAK MART - Photos on Cloudflare R2 (the setup that works)
+
+Supabase keeps the database. Photos go to Cloudflare R2 (10GB free, no egress fees).
+The site is on Vercel, so the signed upload links come from the functions in `api/upload/`.
+(The Cloudflare Worker in `src/workers` is NOT used.)
+
+1. Cloudflare > R2 > your bucket (`mak-mart-uploads`) > Settings > **Public access**: allow the `r2.dev` URL.
+   Copy that URL into `VITE_R2_PUBLIC_URL`.
+2. Same page > **CORS policy** > add:
+   ```json
+   [{"AllowedOrigins":["https://YOUR-SITE.vercel.app"],"AllowedMethods":["PUT","GET","HEAD"],"AllowedHeaders":["*"],"MaxAgeSeconds":3600}]
+   ```
+3. R2 > Manage API tokens > create a token with **Object Read & Write** for that bucket.
+4. Vercel > Project > Settings > Environment Variables (Production), then **Redeploy**:
+   `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` (names must NOT start with VITE_),
+   `VITE_R2_PUBLIC_URL`, `VITE_STORAGE_PROVIDER=r2`, plus your two Supabase variables.
+   Leave `VITE_API_URL` unset.
+5. Test on the live site (the /api functions don't run under plain `npm run dev`).
+
+---- older notes below (kept for reference; ignore the Worker steps) ----
+
 # MAK MART - Supabase + Cloudflare R2 Setup Guide
 
 ## Overview
