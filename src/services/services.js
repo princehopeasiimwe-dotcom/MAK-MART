@@ -81,6 +81,30 @@ const ServiceService = {
     return data || [];
   },
 
+  // ---- PACKAGES (price list for one service) ----
+
+  async getPackages(serviceId) {
+    const { data, error } = await supabase
+      .from("service_packages")
+      .select("id, name, description, price, unit, sort_order")
+      .eq("service_id", serviceId)
+      .eq("is_available", true)
+      .order("sort_order", { ascending: true });
+
+    if (error) throw error;
+
+    return data || [];
+  },
+
+  async savePackages(serviceId, packages) {
+    const { error } = await supabase.rpc("save_service_packages", {
+      p_service_id: serviceId,
+      p_packages: packages,
+    });
+
+    if (error) throw error;
+  },
+
   async createService(service) {
     const { data, error } = await supabase
       .from("services")

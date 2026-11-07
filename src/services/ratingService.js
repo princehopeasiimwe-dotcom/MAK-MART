@@ -35,11 +35,12 @@ const RatingService = {
   },
 
   // ----- services -----
-  async requestService({ serviceId, notes, location }) {
+  async requestService({ serviceId, notes, location, packageId }) {
     const { data, error } = await supabase.rpc("request_service", {
       p_service_id: serviceId,
       p_notes: notes || null,
       p_location: location || null,
+      p_package_id: packageId || null,
     });
     if (error) throw error;
     return data;
