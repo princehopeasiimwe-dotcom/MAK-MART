@@ -1,0 +1,167 @@
+import { useEffect, useState } from "react";
+import {
+  Package,
+  CalendarDays,
+  ShoppingCart,
+  Wallet,
+} from "lucide-react";
+
+import useAuth from "../../hooks/useAuth";
+import { supabase } from "../../lib/supabase";
+import { Link } from "react-router-dom";
+import OfferServiceCard from "../../components/vendor/OfferServiceCard";
+import WhatsAppGroupCard from "../../components/common/WhatsAppGroupCard";
+import ShareStoreCard from "../../components/vendor/ShareStoreCard";
+import SellProductsCard from "../../components/provider/SellProductsCard";
+
+function VendorDashboard() {
+  const { user, vendor, profile } = useAuth();
+
+  const [lowStock, setLowStock] = useState(0);
+
+  const [stats, setStats] = useState({
+    products: 0,
+    events: 0,
+    orders: 0,
+  });
+
+  useEffect(() => {
+    if (!vendor?.id || !user?.id) return;
+
+    const loadStats = async () => {
+      const [
+        productsResult,
+        eventsResult,
+        ordersResult,
+      ] = await Promise.all([
+        supabase
+          .from("products")
+          .select("*", {
+            count: "exact",
+            head: true,
+          })
+          .eq("vendor_id", vendor.id),
+
+        supabase
+          .from("events")
+          .select("*", {
+            count: "exact",
+            head: true,
+          })
+          .eq("created_by", user.id),
+
+        supabase
+          .from("orders")
+          .select("*", {
+            count: "exact",
+            head: true,
+          })
+          .eq("vendor_id", vendor.id),
+      ]);
+
+      setStats({
+        products:
+          productsResult.count || 0,
+        events:
+          eventsResult.count || 0,
+        orders:
+          ordersResult.count || 0,
+      });
+    };
+
+    loadStats();
+
+    supabase
+      .from("products")
+      .select("id, stock_quantity")
+      .eq("vendor_id", vendor.id)
+      .not("stock_quantity", "is", null)
+      .lte("stock_quantity", 3)
+      .then(({ data }) => setLowStock(data?.length || 0));
+  }, [vendor?.id, user?.id]);
+
+  const statusLabel = !vendor
+    ? "Not set up"
+    : vendor.is_active
+    ? "Live"
+    : "Pending approval";
+
+  return (
+    <section className="dashboard-page">
+      <div className="page-header">
+        <span className="eyebrow">
+          VENDOR DASHBOARD
+        </span>
+
+        <h1>
+          Welcome, {vendor?.business_name || profile?.full_name || "there"}
+        </h1>
+
+        <p>
+          {vendor
+            ? "Manage your MAK MART storefront."
+            : "Open a store or offer a service from your account."}
+        </p>
+      </div>
+
+      {vendor && !vendor.is_active && (
+        <div className="active-filter">
+          Your store is awaiting admin approval. Your
+          products won't appear publicly until then.
+        </div>
+      )}
+
+      {lowStock > 0 && (
+        <Link to="/vendor/products" className="low-stock-banner">
+          {lowStock === 1 ? "1 product is" : `${lowStock} products are`} low or sold out. Tap to restock →
+        </Link>
+      )}
+
+      {vendor ? (
+        <>
+          <ShareStoreCard vendor={vendor} />
+
+          <WhatsAppGroupCard approved={Boolean(vendor?.is_active)} />
+        </>
+      ) : (
+        <SellProductsCard />
+      )}
+
+      {vendor && (
+        <Link to="/vendor/insights" className="insights-card insights-link">
+          See who is viewing your products and how buyers rate you →
+        </Link>
+      )}
+
+      <OfferServiceCard />
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <Package size={24} />
+          <span>Products</span>
+          <strong>{stats.products}</strong>
+        </div>
+
+        <div className="stat-card">
+          <CalendarDays size={24} />
+          <span>Events</span>
+          <strong>{stats.events}</strong>
+        </div>
+
+        <div className="stat-card">
+          <ShoppingCart size={24} />
+          <span>Orders</span>
+          <strong>{stats.orders}</strong>
+        </div>
+
+        <div className="stat-card">
+          <Wallet size={24} />
+          <span>Status</span>
+          <strong>{statusLabel}</strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default VendorDashboard;

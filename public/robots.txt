@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /vendor/
+Disallow: /provider/
+Allow: /vendor/signup
+Allow: /provider/signup
+Disallow: /login
+Disallow: /account
+Disallow: /cart
+Disallow: /update-password
+Disallow: /reset-password
+
+Sitemap: https://mak-mart-vcy2.vercel.app/sitemap.xml

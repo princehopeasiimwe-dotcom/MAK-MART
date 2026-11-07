@@ -1,0 +1,114 @@
+:root {
+  /* ================================
+     KU MARKET BRAND
+     ================================ */
+
+  --color-orange: #ff6b35;
+  --color-orange-dark: #e65322;
+
+  --color-pink: #ff3d81;
+  --color-pink-dark: #e72d6d;
+  --color-pink-light: #fff0f5;
+
+  --color-purple: #6c3cff;
+  --color-yellow: #ffb703;
+
+  /* ================================
+     NEUTRALS
+     ================================ */
+
+  --color-dark: #17151f;
+  --color-dark-soft: #292532;
+
+  --color-text: #211d27;
+  --color-text-soft: #514a57;
+  --color-muted: #77717d;
+
+  --color-white: #ffffff;
+
+  --color-background: #fffaf8;
+  --color-surface: #ffffff;
+  --color-surface-soft: #fff5f1;
+
+  --color-border: #eee7e5;
+  --color-border-dark: #ddd5d2;
+
+  /* ================================
+     GRADIENTS
+     ================================ */
+
+  --gradient-brand:
+    linear-gradient(
+      135deg,
+      #ff6b35 0%,
+      #ff3d81 100%
+    );
+
+  --gradient-brand-soft:
+    linear-gradient(
+      135deg,
+      #fff0e9 0%,
+      #fff0f5 100%
+    );
+
+  --gradient-dark:
+    linear-gradient(
+      135deg,
+      #17151f 0%,
+      #302239 100%
+    );
+
+  /* ================================
+     SHADOWS
+     ================================ */
+
+  --shadow-xs:
+    0 2px 8px rgba(30, 20, 20, 0.04);
+
+  --shadow-sm:
+    0 5px 18px rgba(30, 20, 20, 0.06);
+
+  --shadow-md:
+    0 12px 35px rgba(30, 20, 20, 0.09);
+
+  --shadow-lg:
+    0 24px 60px rgba(30, 20, 20, 0.13);
+
+  --shadow-brand:
+    0 12px 28px rgba(255, 86, 73, 0.22);
+
+  /* ================================
+     RADIUS
+     ================================ */
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-2xl: 42px;
+
+  /* ================================
+     LAYOUT
+     ================================ */
+
+  --container-width: 1280px;
+
+  /* ================================
+     TRANSITIONS
+     ================================ */
+
+  --transition-fast: 0.18s ease;
+  --transition: 0.25s ease;
+  --transition-slow: 0.35s ease;
+
+  /* ================================
+     LEGACY ALIASES (used by App.css)
+     ================================ */
+
+  --primary-color: var(--color-orange);
+  --primary-light: var(--color-surface-soft);
+  --muted-color: var(--color-muted);
+  --border-color: var(--color-border);
+  --text-color: var(--color-text);
+}

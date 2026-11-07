@@ -1,0 +1,69 @@
+body {
+  background:
+    linear-gradient(
+      180deg,
+      hsl(31, 96%, 49%) 0%,
+      var(--color-background) 100%
+    );
+
+  color: var(--color-text);
+}
+
+/* Smooth page transitions */
+.page,
+.section,
+.hero {
+  animation: kuFadeUp 0.45s ease both;
+}
+
+/* Better focus accessibility */
+:focus-visible {
+  outline: 3px solid rgba(255, 61, 129, 0.28);
+  outline-offset: 3px;
+}
+
+@keyframes kuFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}body {
+  background:
+    linear-gradient(
+      180deg,
+      hsl(27, 95%, 50%) 0%,
+      var(--color-background) 100%
+    );
+
+  color: var(--color-text);
+}
+
+/* Smooth page transitions */
+.page,
+.section,
+.hero {
+  animation: kuFadeUp 0.45s ease both;
+}
+
+/* Better focus accessibility */
+:focus-visible {
+  outline: 3px solid rgba(255, 61, 129, 0.28);
+  outline-offset: 3px;
+}
+
+@keyframes kuFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
