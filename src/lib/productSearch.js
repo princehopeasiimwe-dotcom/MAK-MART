@@ -1,10 +1,8 @@
 // Smart product search.
 // Finds a product when ANY word of the search appears in its name, description,
 // category (including parent categories), or vendor name. Handles plurals
-// (perfumes = perfume), half-typed words (perf = perfume), small typos
-// (perfum, parfume), and synonyms (phone = mobile = smartphone).
-
-import { expandQuery } from "./searchSynonyms";
+// (perfumes = perfume), half-typed words (perf = perfume) and small typos
+// (perfum, parfume). Products that contain every word rank first.
 
 const STOP_WORDS = new Set([
   "a", "an", "the", "and", "or", "of", "for", "in", "on", "at", "to", "with",
@@ -84,7 +82,7 @@ function matchQuality(token, words) {
     } else if (!numeric && token.length >= 4 && word.includes(token)) {
       best = Math.max(best, QUALITY.inside);
     } else if (!numeric && best < QUALITY.typo) {
-      const allowed = token.length >= 8 ? 2 : token.length >= 3 ? 1 : 0;
+      const allowed = token.length >= 8 ? 2 : token.length >= 4 ? 1 : 0;
       // short words must at least start the same, to avoid silly matches
       const sameStart = token.length >= 6 || token[0] === word[0];
       if (allowed && sameStart && within(token, word, allowed)) {
@@ -148,12 +146,9 @@ function scoreProduct(index, tokens) {
 //   results : matching products, best first
 //   partial : true when no product had every word, so these are "close" matches
 export function searchProducts(products = [], query = "", categories = []) {
-  const baseWords = [
+  const words = [
     ...new Set(tokenize(query).filter((word) => !STOP_WORDS.has(word))),
   ];
-
-  // Expand with synonyms so "phone" also finds "mobile", "smartphone", etc.
-  const words = expandQuery(baseWords);
 
   if (!words.length) {
     return { results: products, partial: false, words: [] };
