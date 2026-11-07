@@ -46,51 +46,20 @@ function VendorSignUp({ accountType = "vendor" }) {
     setLoading(true);
     setError("");
 
-    const businessName = form.business_name.trim();
-    const phone = form.phone || profile?.phone || "";
-
-    let rpcError;
-    try {
-      const res = await supabase.rpc("become_seller", {
-        p_type: accountType,
-        p_business_name: businessName,
-        p_phone: phone,
-        p_location: form.location,
-      });
-      rpcError = res.error;
-    } catch (err) {
-      rpcError = err;
-    }
-
-    // If the database function hasn't been installed yet, do the same thing
-    // directly. The row-level-security policies already let a signed-in user
-    // create their own vendor / provider record, so existing shoppers are
-    // never blocked on a database update.
-    if (rpcError && /function|schema cache|does not exist|could not find/i.test(rpcError.message || "")) {
-      const table = isProvider ? "service_providers" : "vendors";
-      const { error: insertError } = await supabase.from(table).insert({
-        owner_id: user.id,
-        business_name: businessName,
-        phone: phone || null,
-        location: form.location || null,
-      });
-
-      rpcError = insertError;
-
-      if (!insertError && profile?.role !== "vendor" && profile?.role !== "admin") {
-        // Best effort: keep the role label in step. Access no longer depends on it.
-        await supabase.from("profiles").update({ role: accountType }).eq("id", user.id);
-      }
-    }
+    const { error: rpcError } = await supabase.rpc("become_seller", {
+      p_type: accountType,
+      p_business_name: form.business_name,
+      p_phone: form.phone || profile?.phone || "",
+      p_location: form.location,
+    });
 
     if (rpcError) {
       setLoading(false);
       setError(
-        /duplicate|unique|already/i.test(rpcError.message || "")
-          ? "This account already has this set up. Go to your dashboard."
+        /function|schema cache|does not exist/i.test(rpcError.message || "")
+          ? "This isn't switched on yet. The site admin needs to run the latest database update."
           : rpcError.message || "Could not create your account. Please try again."
       );
-      await refreshProfile?.();
       return;
     }
 

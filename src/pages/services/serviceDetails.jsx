@@ -11,6 +11,7 @@ import { StarRating } from "../../components/common/Stars";
 import SignInToOrder from "../../components/marketplace/SignInToOrder";
 import ServiceRequestModal from "../../components/services/ServiceRequestModal";
 import { trackServiceView } from "../../lib/analytics";
+import ServiceService from "../../services/services";
 
 import usePageSeo from "../../hooks/usePageSeo";
 import ReportButton from "../../components/common/ReportButton";
@@ -23,6 +24,8 @@ function ServiceDetails() {
   const { serviceStats, providerStats } = useRatings();
   const [signInOpen, setSignInOpen] = useState(false);
   const [requestOpen, setRequestOpen] = useState(false);
+  const [packages, setPackages] = useState([]);
+  const [pickedPackage, setPickedPackage] = useState("");
 
   usePageSeo({ title: service?.name || "Service", description: service?.description, image: service?.image_url });
 
@@ -32,6 +35,16 @@ function ServiceDetails() {
     });
   }, [fetchService, serviceId]);
 
+  useEffect(() => {
+    let alive = true;
+    ServiceService.getPackages(serviceId)
+      .then((rows) => alive && setPackages(rows))
+      .catch(() => alive && setPackages([]));
+    return () => {
+      alive = false;
+    };
+  }, [serviceId]);
+
   if (loading) return <main className="page-container"><p>Loading service...</p></main>;
   if (error) return <main className="page-container"><p role="alert">{error}</p></main>;
   if (!service) return <main className="page-container"><p>Service not found.</p></main>;
@@ -39,8 +52,9 @@ function ServiceDetails() {
   const provider = service.service_providers;
   const providerPhone = provider?.phone;
 
-  const handleContact = () => {
+  const handleContact = (packageId = "") => {
     if (!providerPhone) return;
+    setPickedPackage(typeof packageId === "string" ? packageId : "");
     if (user) setRequestOpen(true);
     else setSignInOpen(true);
   };
@@ -71,18 +85,40 @@ function ServiceDetails() {
 
           {service.price != null && (
             <p className="service-details__price">
-              {formatCurrency(service.price)}
+              {packages.length > 0 ? "From " : ""}{formatCurrency(service.price)}
             </p>
           )}
 
           <p>{service.description || "Professional services available around campus."}</p>
+
+          {packages.length > 0 && (
+            <section className="package-list" aria-label="Packages and prices">
+              <h2>Packages and prices</h2>
+              {packages.map((p) => (
+                <div className="package-list__row" key={p.id}>
+                  <div>
+                    <strong>{p.name}</strong>
+                    {p.description && <small>{p.description}</small>}
+                  </div>
+                  <span className="package-list__price">
+                    {formatCurrency(p.price)}{p.unit ? <small> {p.unit}</small> : null}
+                  </span>
+                  {providerPhone && (
+                    <button type="button" className="secondary-button" disabled={authLoading} onClick={() => handleContact(p.id)}>
+                      Choose
+                    </button>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
 
           {providerPhone && (
             <button
               type="button"
               className="primary-button"
               disabled={authLoading}
-              onClick={handleContact}
+              onClick={() => handleContact()}
             >
               <MessageCircle size={18} />
               Request this service
@@ -97,6 +133,8 @@ function ServiceDetails() {
       <ServiceRequestModal
         service={service}
         provider={provider}
+        packages={packages}
+        initialPackageId={pickedPackage}
         isOpen={requestOpen && Boolean(user)}
         onClose={() => setRequestOpen(false)}
       />

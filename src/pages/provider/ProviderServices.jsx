@@ -15,6 +15,7 @@ function ProviderServices() {
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [selectedPackages, setSelectedPackages] = useState([]);
 
   const load = useCallback(async () => {
     if (!serviceProvider?.id) {
@@ -40,14 +41,34 @@ function ProviderServices() {
     load();
   }, [load]);
 
-  const handleSubmit = async (data) => {
+  const openEditor = async (service) => {
+    setSelectedPackages([]);
+    setSelected(service);
+
+    if (service) {
+      try {
+        setSelectedPackages(await ServiceService.getPackages(service.id));
+      } catch (err) {
+        setError(err.message || "Could not load the packages.");
+      }
+    }
+
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async (data, packages = []) => {
+    let saved;
     if (selected) {
-      await ServiceService.updateService(selected.id, data);
+      saved = await ServiceService.updateService(selected.id, data);
     } else {
-      await ServiceService.createService({
+      saved = await ServiceService.createService({
         ...data,
         provider_id: serviceProvider.id,
       });
+    }
+
+    if (packages.length > 0 || selectedPackages.length > 0) {
+      await ServiceService.savePackages(saved.id, packages);
     }
 
     setModalOpen(false);
@@ -73,14 +94,8 @@ function ProviderServices() {
       <ServiceManager
         services={services}
         loading={loading}
-        onAdd={() => {
-          setSelected(null);
-          setModalOpen(true);
-        }}
-        onEdit={(service) => {
-          setSelected(service);
-          setModalOpen(true);
-        }}
+        onAdd={() => openEditor(null)}
+        onEdit={openEditor}
         onDelete={handleDelete}
       />
 
@@ -90,8 +105,9 @@ function ProviderServices() {
         title={selected ? "Edit service" : "Add service"}
       >
         <ServiceForm
-          key={selected?.id || "new"}
+          key={`${selected?.id || "new"}-${selectedPackages.length}`}
           initialData={selected}
+          initialPackages={selectedPackages}
           categories={categories}
           onSubmit={handleSubmit}
         />

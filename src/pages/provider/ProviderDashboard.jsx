@@ -4,6 +4,7 @@ import useAuth from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import WhatsAppGroupCard from "../../components/common/WhatsAppGroupCard";
 import ShareStoreCard from "../../components/vendor/ShareStoreCard";
+import SellProductsCard from "../../components/provider/SellProductsCard";
 
 function ProviderDashboard() {
   const { serviceProvider } = useAuth();
@@ -38,6 +39,8 @@ function ProviderDashboard() {
       <WhatsAppGroupCard approved={Boolean(serviceProvider?.is_active)} />
 
       <ShareStoreCard provider={serviceProvider} />
+
+      <SellProductsCard />
 
       <div className="stats-grid">
         <div className="stat-card">
