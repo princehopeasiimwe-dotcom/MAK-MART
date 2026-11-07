@@ -3,6 +3,7 @@ import useAuth from "../../hooks/useAuth";
 import useEvents from "../../hooks/useEvents";
 import EventForm from "../../components/vendor/EventForm";
 import Modal from "../../components/common/modal";
+import usePlatformLimit from "../../hooks/usePlatformLimit";
 
 // Ended = past its end time (or 24h after start when no end time was set)
 function isEnded(event) {
@@ -25,6 +26,10 @@ function VendorEvents() {
   } = useEvents({
     createdBy: user?.id,
   });
+
+  const limit = usePlatformLimit("max_events_per_account", 1);
+  const upcoming = events.filter((e) => !isEnded(e)).length;
+  const atLimit = limit > 0 && upcoming >= limit;
 
   const [modalOpen, setModalOpen] =
     useState(false);
@@ -61,6 +66,8 @@ function VendorEvents() {
 
         <button
           className="primary-button"
+          disabled={atLimit}
+          title={atLimit ? `You can have ${limit} upcoming event(s) at a time` : undefined}
           onClick={() => {
             setSelectedEvent(null);
             setModalOpen(true);
@@ -69,6 +76,13 @@ function VendorEvents() {
           Create Event
         </button>
       </div>
+
+      {limit > 0 && (
+        <p className={`product-limit ${atLimit ? "is-full" : ""}`}>
+          {upcoming} of {limit} upcoming event{limit === 1 ? "" : "s"} used
+          {atLimit ? ". Delete it or wait for it to end to add another." : "."}
+        </p>
+      )}
 
       {loading ? (
         <p>Loading events...</p>

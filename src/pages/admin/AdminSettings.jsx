@@ -5,6 +5,8 @@ function AdminSettings() {
   const [groupLink, setGroupLink] = useState("");
   const [digestMin, setDigestMin] = useState("10");
   const [maxProducts, setMaxProducts] = useState("4");
+  const [maxServices, setMaxServices] = useState("5");
+  const [maxEvents, setMaxEvents] = useState("1");
   const [requireApproval, setRequireApproval] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -17,9 +19,13 @@ function AdminSettings() {
       SettingsService.getSetting("digest_min_views"),
       SettingsService.getSetting("reviews_require_approval"),
       SettingsService.getSetting("max_products_per_vendor"),
+      SettingsService.getSetting("max_services_per_provider"),
+      SettingsService.getSetting("max_events_per_account"),
     ])
-      .then(([link, min, approval, maxP]) => {
+      .then(([link, min, approval, maxP, maxS, maxE]) => {
         if (maxP !== "") setMaxProducts(maxP);
+        if (maxS !== "") setMaxServices(maxS);
+        if (maxE !== "") setMaxEvents(maxE);
         setGroupLink(link);
         if (min) setDigestMin(min);
         setRequireApproval(approval !== "false");
@@ -44,6 +50,12 @@ function AdminSettings() {
       const maxP = Math.max(0, parseInt(maxProducts, 10) || 0);
       await SettingsService.updateSetting("max_products_per_vendor", String(maxP));
       setMaxProducts(String(maxP));
+      const maxS = Math.max(0, parseInt(maxServices, 10) || 0);
+      await SettingsService.updateSetting("max_services_per_provider", String(maxS));
+      setMaxServices(String(maxS));
+      const maxE = Math.max(0, parseInt(maxEvents, 10) || 0);
+      await SettingsService.updateSetting("max_events_per_account", String(maxE));
+      setMaxEvents(String(maxE));
       await SettingsService.updateSetting(
         "reviews_require_approval",
         requireApproval ? "true" : "false"
@@ -105,6 +117,35 @@ function AdminSettings() {
             <p className="field-hint">
               Default 4. Enter 0 for no limit. Vendors already above the limit keep their products
               but can't add more until they're under it.
+            </p>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="max-services">Services each provider may offer</label>
+            <input
+              id="max-services"
+              type="number"
+              min="0"
+              value={maxServices}
+              onChange={(event) => setMaxServices(event.target.value)}
+            />
+            <p className="field-hint">
+              Default 5. Enter 0 for no limit. Providers already above the limit keep their services
+              but can't add more until they're under it.
+            </p>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="max-events">Upcoming events each account may have</label>
+            <input
+              id="max-events"
+              type="number"
+              min="0"
+              value={maxEvents}
+              onChange={(event) => setMaxEvents(event.target.value)}
+            />
+            <p className="field-hint">
+              Default 1. Enter 0 for no limit. Events that have ended don't count.
             </p>
           </div>
 

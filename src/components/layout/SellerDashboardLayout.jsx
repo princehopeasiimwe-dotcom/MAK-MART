@@ -156,18 +156,23 @@ function SellerDashboardLayout() {
           )}
         </nav>
 
-        <Link to="/" className="dashboard-sidebar__signout dashboard-sidebar__home">
+        <Link
+          to="/"
+          className="dashboard-sidebar__signout dashboard-sidebar__home"
+          aria-label="View marketplace"
+        >
           <Store size={18} />
-          View marketplace
+          <span className="dashboard-sidebar__label">View marketplace</span>
         </Link>
 
         <button
           type="button"
           className="dashboard-sidebar__signout"
+          aria-label="Sign out"
           onClick={handleSignOut}
         >
           <LogOut size={18} />
-          Sign out
+          <span className="dashboard-sidebar__label">Sign out</span>
         </button>
       </aside>
 

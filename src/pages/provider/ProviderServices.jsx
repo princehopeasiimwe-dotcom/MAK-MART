@@ -5,6 +5,7 @@ import ServiceService from "../../services/services";
 import ServiceManager from "../../components/provider/ServiceManager";
 import ServiceForm from "../../components/provider/ServiceForm";
 import Modal from "../../components/common/modal";
+import usePlatformLimit from "../../hooks/usePlatformLimit";
 import SwitchListingModal from "../../components/common/SwitchListingModal";
 import ErrorMessage from "../../components/common/ErrorMessage";
 
@@ -12,6 +13,7 @@ function ProviderServices() {
   const { serviceProvider } = useAuth();
   const navigate = useNavigate();
   const [switching, setSwitching] = useState(null);
+  const limit = usePlatformLimit("max_services_per_provider", 5);
 
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -102,6 +104,7 @@ function ProviderServices() {
         onEdit={openEditor}
         onDelete={handleDelete}
         onSwitch={setSwitching}
+        limit={limit}
       />
 
       <Modal

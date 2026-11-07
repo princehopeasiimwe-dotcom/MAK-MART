@@ -2315,3 +2315,188 @@ div.product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr
 .package-pick__item.is-selected{background:#e8f5ee}
 .package-pick__item small{display:block;color:#5b665f}
 .package-pick__item em{font-style:normal;font-weight:700;white-space:nowrap}
+/* =========================================================
+   DASHBOARD SHELL (vendors, service providers, everyone)
+   - Desktop: a slimmer sidebar that scrolls on its own, so every menu
+     item (and Sign out) is always reachable, even on short screens.
+   - Phone: a compact sticky bar with the menu in ONE swipeable row,
+     instead of a giant block above the page.
+   ========================================================= */
+.dashboard-layout {
+  grid-template-columns: 200px minmax(0, 1fr);
+}
+
+.dashboard-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.dashboard-brand { font-size: 1rem; flex-shrink: 0; }
+
+.dashboard-store {
+  margin: 16px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+.dashboard-store strong {
+  display: block;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-store small { font-size: 0.7rem; letter-spacing: 0.06em; }
+
+.dashboard-nav { gap: 3px; flex-shrink: 0; }
+.dashboard-nav a {
+  padding: 9px 10px;
+  gap: 10px;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+.dashboard-nav a svg { flex-shrink: 0; }
+
+.dashboard-sidebar__home,
+.dashboard-sidebar__signout {
+  flex-shrink: 0;
+  padding: 10px;
+  font-size: 0.85rem;
+}
+.dashboard-sidebar__home { margin-top: auto; }
+
+.dashboard-main { padding-bottom: 32px; }
+
+@media (max-width: 899px) {
+  .dashboard-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;   /* the header never stretches on short pages */
+    align-content: start;
+  }
+
+  .dashboard-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: auto;
+    overflow: visible;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 8px 10px 6px;
+  }
+
+  .dashboard-brand { order: 1; font-size: 0.95rem; margin-right: auto; }
+  .dashboard-store { display: none; }
+
+  .dashboard-sidebar__home,
+  .dashboard-sidebar__signout {
+    order: 2;
+    margin: 0;
+    padding: 6px 8px;
+    border: none;
+    font-size: 0.78rem;
+  }
+  .dashboard-sidebar__home + .dashboard-sidebar__signout { margin: 0; }
+
+  .dashboard-nav {
+    order: 3;
+    flex: 0 0 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 0 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .dashboard-nav::-webkit-scrollbar { display: none; }
+
+  .dashboard-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    gap: 6px;
+    scroll-snap-align: start;
+  }
+  .dashboard-nav a svg { width: 16px; height: 16px; }
+
+  .dashboard-main { padding-left: 14px; padding-right: 14px; }
+  .dashboard-page { padding-left: 0; padding-right: 0; }
+}
+
+/* Anything wide inside a dashboard page scrolls inside its own box
+   instead of stretching the whole page sideways on a phone. */
+.dashboard-main table { display: block; max-width: 100%; overflow-x: auto; }
+.dashboard-main img, .dashboard-main video { max-width: 100%; height: auto; }
+.page-header { flex-wrap: wrap; gap: 12px; }
+
+/* ---- dashboard on phones: labels become icons, content uses the full width ---- */
+@media (max-width: 899px) {
+  .dashboard-sidebar__label { display: none; }
+  .dashboard-sidebar__home,
+  .dashboard-sidebar__signout { width: 38px; height: 38px; padding: 0; justify-content: center; border-radius: 10px; }
+
+  .dashboard-page {
+    width: 100%;
+    padding-top: 18px;
+    padding-bottom: 28px;
+  }
+  .dashboard-topbar { margin-bottom: 0; }
+  .page-header { align-items: flex-start; }
+  .page-header h1 { font-size: 1.6rem; }
+  .share-store__link { flex-wrap: wrap; }
+  .share-store__link input { flex: 1 1 100%; }
+  .share-store__link button { padding: 10px 14px; }
+  .share-store__actions button { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ---- product / service rows (these classes had no styles before) ---- */
+.product-management { display: grid; gap: 12px; }
+.vendor-product-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid var(--color-border, #e9e5e1);
+  border-radius: 14px;
+}
+.vendor-product-info { min-width: 0; flex: 1 1 220px; }
+.vendor-product-info h3 { margin: 0 0 2px; font-size: 1rem; overflow-wrap: anywhere; }
+.vendor-product-info p { margin: 0 0 4px; color: #6b6560; font-size: 0.88rem; }
+.vendor-product-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.vendor-product-actions button:not(.danger-button) {
+  padding: 8px 14px;
+  border: 1px solid var(--color-border, #e9e5e1);
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vendor-product-actions button:not(.danger-button):hover { border-color: #ff6b35; color: #ff6b35; }
+.vendor-product-actions .danger-button { padding: 8px 14px; font-size: 0.85rem; border-radius: 999px; }
+@media (max-width: 599px) {
+  .vendor-product-actions { width: 100%; }
+  .vendor-product-actions button { flex: 1 1 auto; }
+}
+button:disabled.primary-button { opacity: 0.55; cursor: not-allowed; }
+
+/* global.css gives <body> a 10px margin, which steals 20px of width on a phone
+   and makes the full-height dashboard sidebar overflow the screen. */
+@media (max-width: 899px) { body { margin: 0; } }
+body:has(.dashboard-layout) { margin: 0; }

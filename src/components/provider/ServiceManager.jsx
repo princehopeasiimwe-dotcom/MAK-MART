@@ -8,7 +8,9 @@ function ServiceManager({
   onEdit,
   onDelete,
   onSwitch,
+  limit = 0,
 }) {
+  const atLimit = limit > 0 && services.length >= limit;
   return (
     <div className="dashboard-page">
       <div className="page-header page-header--with-action">
@@ -21,11 +23,20 @@ function ServiceManager({
           type="button"
           className="primary-button"
           onClick={() => onAdd?.()}
+          disabled={atLimit}
+          title={atLimit ? `You can offer up to ${limit} services` : undefined}
         >
           <Plus size={18} />
           Add Service
         </button>
       </div>
+
+      {limit > 0 && (
+        <p className={`product-limit ${atLimit ? "is-full" : ""}`}>
+          {services.length} of {limit} services used
+          {atLimit ? ". Remove one to add another." : "."}
+        </p>
+      )}
 
       {loading ? (
         <p>Loading services...</p>

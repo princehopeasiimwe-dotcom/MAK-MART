@@ -37,9 +37,10 @@ async function getUserId(req) {
   }
 }
 
-// Upload allowance: 40 pictures an hour and 200 a day per person (see migration 033).
-// If that database update has not been run yet we let the upload through.
-async function withinUploadQuota(req) {
+// Upload allowance: 40 pictures an hour and 200 a day per person (migration 024).
+// Returns "ok", "limit" (too many uploads) or "missing" (migration 024 not run yet).
+// If the counter is missing we refuse, so nobody can flood the photo storage.
+async function checkUploadQuota(req) {
   const token = (req.headers?.authorization || "").slice(7);
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const anon = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -49,11 +50,11 @@ async function withinUploadQuota(req) {
       headers: { apikey: anon, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: "{}",
     });
-    if (response.status === 404) return true;
-    if (!response.ok) return false;
-    return (await response.json()) === true;
+    if (response.status === 404) return "missing";
+    if (!response.ok) return "limit";
+    return (await response.json()) === true ? "ok" : "limit";
   } catch {
-    return false;
+    return "limit";
   }
 }
 
@@ -98,7 +99,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Image is too large. Please pick one under 5MB." });
   }
 
-  if (!(await withinUploadQuota(req))) {
+  const quota = await checkUploadQuota(req);
+  if (quota === "missing") {
+    return res.status(503).json({ error: "Upload limits are not set up yet. The site admin needs to run database update 024." });
+  }
+  if (quota !== "ok") {
     return res.status(429).json({ error: "You have uploaded a lot of pictures. Please try again later." });
   }
 
