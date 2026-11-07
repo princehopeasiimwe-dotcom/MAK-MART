@@ -1,0 +1,14 @@
+import{s as t}from"./index-CA0vkpfy.js";const c=`
+  *,
+  service_providers (
+    id,
+    business_name,
+    phone,
+    location
+  ),
+  service_categories (
+    id,
+    name,
+    image_url
+  )
+`,s="*",o={async getServices(r={}){let e=t.from("services").select(c).eq("is_available",!0).order("created_at",{ascending:!1});r.category&&(e=e.eq("category_id",r.category)),r.providerId&&(e=e.eq("provider_id",r.providerId)),r.limit&&(e=e.limit(r.limit));const{data:i,error:a}=await e;if(a)throw a;return i||[]},async getServiceById(r){const{data:e,error:i}=await t.from("services").select(c).eq("id",r).single();if(i)throw i;return e},async getServiceCategories(){const{data:r,error:e}=await t.from("service_categories").select("*").order("name",{ascending:!0});if(e)throw e;return r||[]},async getServicesByProvider(r){const{data:e,error:i}=await t.from("services").select(c).eq("provider_id",r).order("created_at",{ascending:!1});if(i)throw i;return e||[]},async getPackages(r){const{data:e,error:i}=await t.from("service_packages").select("id, name, description, price, unit, sort_order").eq("service_id",r).eq("is_available",!0).order("sort_order",{ascending:!0});if(i)throw i;return e||[]},async savePackages(r,e){const{error:i}=await t.rpc("save_service_packages",{p_service_id:r,p_packages:e});if(i)throw i},async createService(r){const{data:e,error:i}=await t.from("services").insert([r]).select().single();if(i)throw i;return e},async updateService(r,e){const{data:i,error:a}=await t.from("services").update(e).eq("id",r).select().single();if(a)throw a;return i},async deleteService(r){const{error:e}=await t.from("services").delete().eq("id",r);if(e)throw e;return!0},async getProviders(r="active"){let e=t.from("service_providers").select(s).order("created_at",{ascending:!1});r==="active"?e=e.eq("is_active",!0):r==="pending"&&(e=e.eq("is_active",!1));const{data:i,error:a}=await e;if(a)throw a;return i||[]},async getProviderById(r){const{data:e,error:i}=await t.from("service_providers").select(s).eq("id",r).single();if(i)throw i;return e},async getProviderByOwnerId(r){const{data:e,error:i}=await t.from("service_providers").select(s).eq("owner_id",r).maybeSingle();if(i)throw i;return e},async getAllProviders(r=null){let e=t.from("service_providers").select(s).order("created_at",{ascending:!1});r==="active"?e=e.eq("is_active",!0):r==="pending"&&(e=e.eq("is_active",!1));const{data:i,error:a}=await e;if(a)throw a;return i||[]},async createProvider(r){const{data:e,error:i}=await t.from("service_providers").insert([r]).select().single();if(i)throw i;return e},async updateProvider(r,e){const{data:i,error:a}=await t.from("service_providers").update(e).eq("id",r).select().single();if(a)throw a;return i},async approveProvider(r){return o.updateProvider(r,{is_active:!0,is_verified:!0})},async rejectProvider(r){return o.updateProvider(r,{is_active:!1})}};export{o as S};

@@ -1,1 +1,0 @@
-import{u as r,j as a}from"./index-DoDNu7Zf.js";import{N as o}from"./react-URx6oZqB.js";import"./supabase-D-27VTcR.js";function i(){const{dashboardPath:t}=r();return a.jsx(o,{to:t,replace:!0})}export{i as default};
