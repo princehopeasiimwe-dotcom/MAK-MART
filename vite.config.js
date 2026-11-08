@@ -21,7 +21,10 @@ function sitemapPlugin() {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // Production builds contain no console.* calls at all, so nothing can print
+  // (or be intercepted) in visitors' browsers. Development keeps every log.
+  esbuild: { drop: mode === "production" ? ["console", "debugger"] : [] },
   build: {
     rollupOptions: {
       output: {
@@ -85,4 +88,4 @@ export default defineConfig({
       },
     }),
   ],
-});
+}));

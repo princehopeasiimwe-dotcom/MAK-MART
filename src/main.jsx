@@ -9,6 +9,9 @@ import "./styles/responsive.css";
 import "./styles/campus.css";
 
 import App from "./App";
+import { installLocalErrorCapture } from "./lib/logger";
+
+installLocalErrorCapture();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

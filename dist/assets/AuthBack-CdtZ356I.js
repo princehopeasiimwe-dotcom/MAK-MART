@@ -1,0 +1,1 @@
+import{j as r}from"./index-CHVkWm83.js";import{L as t}from"./react-BL1_SiB8.js";import{A as a}from"./arrow-left-D1fPz7ae.js";function c({to:o="/",label:s="Back to home"}){return r.jsxs(t,{to:o,className:"auth-back",children:[r.jsx(a,{size:16}),s]})}export{c as A};

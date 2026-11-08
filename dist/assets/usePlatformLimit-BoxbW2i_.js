@@ -1,1 +1,0 @@
-import{r as n}from"./react-D3ABeba6.js";import{S as m}from"./settingsService-NpUYcga0.js";function a(e,i){const[o,r]=n.useState(0);return n.useEffect(()=>{m.getSetting(e).then(s=>{const t=parseInt(s,10);r(Number.isFinite(t)&&t>0?t:s===""?i:0)}).catch(()=>r(0))},[e,i]),o}export{a as u};

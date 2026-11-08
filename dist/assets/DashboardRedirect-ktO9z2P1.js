@@ -1,0 +1,1 @@
+import{u as r,j as a}from"./index-CHVkWm83.js";import{N as o}from"./react-BL1_SiB8.js";import"./supabase-BKrQshA2.js";function i(){const{dashboardPath:t}=r();return a.jsx(o,{to:t,replace:!0})}export{i as default};

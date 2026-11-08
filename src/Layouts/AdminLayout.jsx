@@ -9,7 +9,6 @@ import {
   BarChart3,
   ShieldCheck,
   Settings,
-  Bug,
   Tag,
   LogOut,
   Star,
@@ -100,11 +99,6 @@ function AdminLayout() {
             Categories
           </NavLink>
           
-          <NavLink to="/admin/debug">
-            <Bug size={19} />
-            Debug feed
-          </NavLink>
-
           <NavLink to="/admin/settings">
             <Settings size={19} />
             Settings
