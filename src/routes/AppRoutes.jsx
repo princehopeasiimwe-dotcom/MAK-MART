@@ -62,6 +62,7 @@ const AdminOrders = lazy(() => import("../pages/admin/AdminOrders"));
 const AdminReports = lazy(() => import("../pages/admin/AdminReports"));
 const AdminCategories = lazy(() => import("../pages/admin/AdminCategories"));
 const AdminSettings = lazy(() => import("../pages/admin/AdminSettings"));
+const AdminDebug = lazy(() => import("../pages/admin/AdminDebug"));
 
 function AppRoutes() {
   return (
@@ -261,6 +262,11 @@ function AppRoutes() {
         <Route
           path="settings"
           element={<AdminSettings />}
+        />
+
+        <Route
+          path="debug"
+          element={<AdminDebug />}
         />
                 <Route
           path="categories"
