@@ -11,11 +11,15 @@ import OrderReviewModal from "../../components/account/OrderReviewModal";
 import DeleteAccountCard from "../../components/common/DeleteAccountCard";
 import ServiceReviewModal from "../../components/account/ServiceReviewModal";
 
+// If a seller never ticks "delivered", the buyer can still rate after 3 days.
+const RATE_AFTER_MS = 3 * 24 * 60 * 60 * 1000;
+const isOverdue = (createdAt) => Date.now() - new Date(createdAt).getTime() > RATE_AFTER_MS;
+
 function Account() {
   usePageSeo({ title: "Your account", noindex: true });
 
   const navigate = useNavigate();
-  const { user, profile, isAdmin, dashboardPath, loading, signOut } =
+  const { user, profile, isAdmin, isVendor, isServiceProvider, loading, signOut } =
     useAuth();
 
   const [orders, setOrders] = useState([]);
@@ -135,6 +139,14 @@ function Account() {
     );
   }
 
+  const dashboardPath = isAdmin
+    ? "/admin/dashboard"
+    : isVendor
+    ? "/vendor/dashboard"
+    : isServiceProvider
+    ? "/provider/dashboard"
+    : null;
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -151,9 +163,11 @@ function Account() {
         <p>{user.email}</p>
 
         <div className="mm-panel__actions">
-          <Link to={dashboardPath} className="mm-btn mm-btn--primary">
-            <LayoutDashboard size={18} /> My dashboard
-          </Link>
+          {dashboardPath && (
+            <Link to={dashboardPath} className="mm-btn mm-btn--primary">
+              <LayoutDashboard size={18} /> My dashboard
+            </Link>
+          )}
           {isAdmin && (
             <span className="mm-tag"><ShieldCheck size={15} /> Admin</span>
           )}
@@ -198,18 +212,24 @@ function Account() {
                 {order.status !== "cancelled" && order.vendors && (
                   <div className="mm-orders__action">
                     {!order.delivery_confirmed_at ? (
-                      <>
-                        <span>Got your order from {order.vendors.business_name}?</span>
-                        <button
-                          type="button"
-                          className="mm-btn mm-btn--primary mm-btn--sm"
-                          disabled={busyId === order.id}
-                          onClick={() => handleConfirm(order)}
-                        >
-                          <CheckCircle2 size={16} />
-                          {busyId === order.id ? "Saving..." : "I received it"}
-                        </button>
-                      </>
+                      isOverdue(order.created_at) ? (
+                        <>
+                          <span>How was {order.vendors.business_name}?</span>
+                          <button
+                            type="button"
+                            className="mm-btn mm-btn--outline mm-btn--sm"
+                            disabled={busyId === order.id}
+                            onClick={() => handleConfirm(order)}
+                          >
+                            <Star size={16} />
+                            {busyId === order.id ? "Opening..." : "Rate this order"}
+                          </button>
+                        </>
+                      ) : (
+                        <span className="mm-orders__wait">
+                          Waiting for {order.vendors.business_name} to mark it delivered. You can then rate it.
+                        </span>
+                      )
                     ) : review ? (
                       <span className="mm-orders__done">
                         <CheckCircle2 size={16} /> Delivered · you rated {review.vendor_rating}
@@ -265,18 +285,24 @@ function Account() {
                   {request.status !== "cancelled" && (
                     <div className="mm-orders__action">
                       {!request.delivery_confirmed_at ? (
-                        <>
-                          <span>Was the service done?</span>
-                          <button
-                            type="button"
-                            className="mm-btn mm-btn--primary mm-btn--sm"
-                            disabled={busyRequestId === request.id}
-                            onClick={() => handleConfirmService(request)}
-                          >
-                            <CheckCircle2 size={16} />
-                            {busyRequestId === request.id ? "Saving..." : "Yes, it was done"}
-                          </button>
-                        </>
+                        isOverdue(request.created_at) ? (
+                          <>
+                            <span>How was {request.service_providers?.business_name || "the provider"}?</span>
+                            <button
+                              type="button"
+                              className="mm-btn mm-btn--outline mm-btn--sm"
+                              disabled={busyRequestId === request.id}
+                              onClick={() => handleConfirmService(request)}
+                            >
+                              <Star size={16} />
+                              {busyRequestId === request.id ? "Opening..." : "Rate this service"}
+                            </button>
+                          </>
+                        ) : (
+                          <span className="mm-orders__wait">
+                            Waiting for the provider to mark it done. You can then rate it.
+                          </span>
+                        )
                       ) : review ? (
                         <span className="mm-orders__done">
                           <CheckCircle2 size={16} /> Done · you rated {review.rating}

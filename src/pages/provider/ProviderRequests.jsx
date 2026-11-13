@@ -58,6 +58,22 @@ function ProviderRequests() {
     }
   };
 
+  const runAction = async (request, action, fallback) => {
+    setBusyId(request.id);
+    setError("");
+    try {
+      await action(request.id);
+      await load();
+    } catch (err) {
+      setError(err.message || fallback);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const markDone = (request) => runAction(request, RatingService.markServiceDone, "Could not mark it as done.");
+  const undoDone = (request) => runAction(request, RatingService.unmarkServiceDone, "Could not undo.");
+
   return (
     <section className="dashboard-page">
       <div className="page-header">
@@ -65,7 +81,7 @@ function ProviderRequests() {
         <h1>Service requests</h1>
         <p>
           People who asked for your services. They'll also message you on WhatsApp. When the job is done,
-          the customer confirms it in the app and can rate you.
+          tick Mark as done. The customer is then asked to rate you.
         </p>
       </div>
 
@@ -94,8 +110,22 @@ function ProviderRequests() {
               {request.location && <small>Where: {request.location}</small>}
               {request.notes && <p>{request.notes}</p>}
 
+              {request.status === "completed" && request.delivery_confirmed_at && (
+                <div className="review-item__actions">
+                  <small>Marked as done. The customer can now rate you.</small>
+                  <button type="button" className="secondary-button" disabled={busyId === request.id} onClick={() => undoDone(request)}>
+                    Undo
+                  </button>
+                </div>
+              )}
+
               {(request.status === "pending" || request.status === "accepted") && (
                 <div className="review-item__actions">
+                  {request.status === "accepted" && (
+                    <button type="button" className="primary-button" disabled={busyId === request.id} onClick={() => markDone(request)}>
+                      <Check size={16} /> Mark as done
+                    </button>
+                  )}
                   {request.status === "pending" && (
                     <button type="button" className="primary-button" disabled={busyId === request.id} onClick={() => setStatus(request, "accepted")}>
                       <Check size={16} /> Accept
