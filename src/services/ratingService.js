@@ -92,6 +92,34 @@ const RatingService = {
     if (error) throw error;
   },
 
+  // Sellers tick orders / jobs as delivered; buyers just rate.
+  async markOrderDelivered(orderId) {
+    const { error } = await supabase.rpc("mark_order_delivered", { p_order_id: orderId });
+    if (error) throw error;
+  },
+
+  async unmarkOrderDelivered(orderId) {
+    const { error } = await supabase.rpc("unmark_order_delivered", { p_order_id: orderId });
+    if (error) throw error;
+  },
+
+  async markServiceDone(requestId) {
+    const { error } = await supabase.rpc("mark_service_done", { p_id: requestId });
+    if (error) throw error;
+  },
+
+  async unmarkServiceDone(requestId) {
+    const { error } = await supabase.rpc("unmark_service_done", { p_id: requestId });
+    if (error) throw error;
+  },
+
+  // Delivered orders / finished jobs the signed-in buyer has not rated yet.
+  async getPendingRatings() {
+    const { data, error } = await supabase.rpc("my_pending_ratings");
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  },
+
   async confirmDelivery(orderId) {
     const { error } = await supabase.rpc("confirm_delivery", { p_order_id: orderId });
     if (error) throw error;
