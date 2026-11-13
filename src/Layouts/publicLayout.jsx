@@ -4,6 +4,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import MobileTabBar from "../components/layout/MobileTabBar";
 import { trackVisit } from "../lib/analytics";
+import RatePrompt from "../components/account/RatePrompt";
 
 function PublicLayout() {
   const { pathname } = useLocation();
@@ -21,6 +22,7 @@ function PublicLayout() {
   return (
     <div className="public-layout mm-shell">
       <Navbar />
+      <RatePrompt />
 
       <main className="public-layout__main">
         <Outlet />

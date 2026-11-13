@@ -2574,3 +2574,12 @@ html, body {
 @media (max-width: 899px) {
   .page { width: min(calc(100% - 32px), var(--container-width)); padding: 28px 0; }
 }
+/* ---------- seller marks delivered + rating prompt (pack 49) ---------- */
+.order-item__side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.mm-orders__wait{font-size:.85rem;color:#5b665f}
+.rate-prompt{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff8e1;border-bottom:1px solid #f0dc9a}
+.rate-prompt__text{flex:1;min-width:0;display:flex;flex-direction:column}
+.rate-prompt__text small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#6b5d1f}
+.rate-prompt__close{border:0;background:transparent;cursor:pointer;padding:4px;color:#6b5d1f}
+.rate-prompt__btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 16px;background:#ff6b35;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer;flex-shrink:0}
+.order-item__side button{padding:8px 14px;min-height:0;font-size:.85rem;white-space:nowrap}
